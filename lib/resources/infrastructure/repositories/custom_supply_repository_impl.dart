@@ -1,6 +1,6 @@
-import 'package:restock/arm/domain/repositories/custom_supply_repository.dart';
-import 'package:restock/arm/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
-import 'package:restock/arm/domain/entities/custom_supply.dart';
+import 'package:restock/resources/domain/repositories/custom_supply_repository.dart';
+import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
+import 'package:restock/resources/domain/entities/custom_supply.dart';
 
 class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
 

@@ -1,4 +1,4 @@
-import 'package:restock/arm/domain/entities/custom_supply.dart';
+import 'package:restock/resources/domain/entities/custom_supply.dart';
 
 abstract class CustomSupplyRepository {
   
