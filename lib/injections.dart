@@ -3,6 +3,17 @@ import 'package:get_it/get_it.dart';
 /// Service locator for dependency injection.
 final serviceLocator = GetIt.instance;
 
+/// Sets up all the dependencies for the application.
+Future<void> setupDependencies() async {
+  await iamDependencies();
+  await profileDependencies();
+  await analyticsDependencies();
+  await armDependencies();
+  await communicationsDependencies();
+  await subscriptionsDependencies();
+  await trackingDependencies();
+}
+
 /// Configures the dependencies for the IAM context.
 Future<void> iamDependencies() async {
   // For example:
