@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import './injections.dart' as di;
 
-void main() {
+/// The main entry point of the application.
+Future<void> main() async {
+  // Ensure that Flutter bindings are initialized before setting up dependencies.
+  await di.setupDependencies();
   runApp(const MyApp());
 }
 
+/// The root widget of the application.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
