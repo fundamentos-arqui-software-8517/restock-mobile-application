@@ -1,4 +1,9 @@
 import 'package:get_it/get_it.dart';
+import 'package:restock/resources/application/resource_management_facade_service.dart';
+import 'package:restock/resources/domain/repositories/custom_supply_repository.dart';
+import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
+import 'package:restock/resources/infrastructure/repositories/custom_supply_repository_impl.dart';
+import 'package:restock/resources/presentation/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 
 /// Service locator for dependency injection.
 final serviceLocator = GetIt.instance;
@@ -8,7 +13,7 @@ Future<void> setupDependencies() async {
   await iamDependencies();
   await profileDependencies();
   await analyticsDependencies();
-  await armDependencies();
+  await rmDependencies();
   await communicationsDependencies();
   await subscriptionsDependencies();
   await trackingDependencies();
@@ -33,9 +38,32 @@ Future<void> analyticsDependencies() async {
 }
 
 /// Configures the dependencies for the ARM context.
-Future<void> armDependencies() async {
-  // For example:
-  // serviceLocator.registerLazySingleton<YourArmService>(() => YourArmServiceImpl());
+Future<void> rmDependencies() async {
+  // Application layer (Facade services)
+  serviceLocator.registerLazySingleton<ResourceManagementFacadeService>(
+    () => ResourceManagementFacadeService(
+      customSupplyRepository: serviceLocator<CustomSupplyRepository>(),
+    ),
+  );
+
+  // Infrastructure layer (Repositories and Data Providers)
+  serviceLocator.registerLazySingleton<CustomSupplyRemoteDataProvider>(
+    () => CustomSupplyRemoteDataProvider(),
+  );
+
+  serviceLocator.registerLazySingleton<CustomSupplyRepository>(
+    () => CustomSupplyRepositoryImpl(
+      customSupplyRemoteDataProvider:
+          serviceLocator<CustomSupplyRemoteDataProvider>(),
+    ),
+  );
+
+  // Presentation layer
+  serviceLocator.registerFactory<CustomSupplyListBloc>(
+    () => CustomSupplyListBloc(
+      rmFacadeService: serviceLocator<ResourceManagementFacadeService>(),
+    ),
+  );
 }
 
 /// Configures the dependencies for the Communications context.
