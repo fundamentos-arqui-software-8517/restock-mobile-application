@@ -32,7 +32,7 @@ class InventoryPage extends StatelessWidget {
             case Status.failure:
               return Center(
                 child: Text(
-                  state.message ?? 'Error al cargar el inventario',
+                  state.message ?? 'Error loading inventory',
                   style: const TextStyle(color: Colors.redAccent),
                 ),
               );
