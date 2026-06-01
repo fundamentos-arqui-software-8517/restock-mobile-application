@@ -14,7 +14,9 @@ import 'package:restock/resources/infrastructure/data_sources/branch_remote_data
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
 import 'package:restock/resources/infrastructure/repositories/branch_repository_impl.dart';
 import 'package:restock/resources/infrastructure/repositories/custom_supply_repository_impl.dart';
+import 'package:restock/resources/presentation/branches/branch_detail/bloc/branch_detail_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
+import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 import 'package:restock/shared/infrastructure/storage/token_storage.dart';
@@ -123,6 +125,7 @@ Future<void> rmDependencies() async {
   serviceLocator.registerLazySingleton<BranchFacadeService>(
     () => BranchFacadeService(
       branchRepository: serviceLocator<BranchRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
     ),
   );
 
@@ -142,7 +145,9 @@ Future<void> rmDependencies() async {
 
   // Branch
   serviceLocator.registerLazySingleton<BranchRemoteDataProvider>(
-    () => BranchRemoteDataProvider(),
+    () => BranchRemoteDataProvider(
+      http: serviceLocator<AuthHttpClient>(),
+    ),
   );
 
   serviceLocator.registerLazySingleton<BranchRepository>(
@@ -164,6 +169,18 @@ Future<void> rmDependencies() async {
   // Branch List Bloc
   serviceLocator.registerFactory<BranchListBloc>(
     () => BranchListBloc(
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<BranchDetailBloc>(
+    () => BranchDetailBloc(
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<CreateAndEditBranchBloc>(
+    () => CreateAndEditBranchBloc(
       branchFacadeService: serviceLocator<BranchFacadeService>(),
     ),
   );

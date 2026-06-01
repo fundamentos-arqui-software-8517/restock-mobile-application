@@ -18,4 +18,8 @@ class Branch {
     required this.address,
     required this.status,
   });
+
+  /// A computed property that returns the full address of the branch by combining the address and city from the Address entity.
+  String get fullAddress =>
+    '${address.address}, ${address.city}, ${address.country}';
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bloc.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/pages/sign_in_form_screen.dart';
 import 'package:restock/injections.dart';
+import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_event.dart';
 import 'package:restock/resources/presentation/branches/pages/branch_page.dart';
@@ -77,9 +78,17 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
           routes: [
             GoRoute(
               path: '/settings',
-              builder: (_, _) => BlocProvider<BranchListBloc>(
-                create: (context) =>
-                    serviceLocator<BranchListBloc>()..add(const GetBranches()),
+              builder: (_, _) => MultiBlocProvider(
+                providers: [
+                  RepositoryProvider<BranchFacadeService>(
+                    create: (_) => serviceLocator<BranchFacadeService>(),
+                  ),
+                  BlocProvider<BranchListBloc>(
+                    create: (_) =>
+                        serviceLocator<BranchListBloc>()
+                          ..add(const GetBranches()),
+                  ),
+                ],
                 child: const BranchesPage(),
               ),
             ),
