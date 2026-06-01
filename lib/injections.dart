@@ -1,4 +1,14 @@
 import 'package:get_it/get_it.dart';
+import 'package:restock/resources/application/branch_facade_service.dart';
+import 'package:restock/resources/application/custom_supply_facade_service.dart';
+import 'package:restock/resources/domain/repositories/branch_repository.dart';
+import 'package:restock/resources/domain/repositories/custom_supply_repository.dart';
+import 'package:restock/resources/infrastructure/data_sources/branch_remote_data_provider.dart';
+import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
+import 'package:restock/resources/infrastructure/repositories/branch_repository_impl.dart';
+import 'package:restock/resources/infrastructure/repositories/custom_supply_repository_impl.dart';
+import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 
 /// Service locator for dependency injection.
 final serviceLocator = GetIt.instance;
@@ -8,7 +18,7 @@ Future<void> setupDependencies() async {
   await iamDependencies();
   await profileDependencies();
   await analyticsDependencies();
-  await armDependencies();
+  await rmDependencies();
   await communicationsDependencies();
   await subscriptionsDependencies();
   await trackingDependencies();
@@ -33,9 +43,64 @@ Future<void> analyticsDependencies() async {
 }
 
 /// Configures the dependencies for the ARM context.
-Future<void> armDependencies() async {
-  // For example:
-  // serviceLocator.registerLazySingleton<YourArmService>(() => YourArmServiceImpl());
+Future<void> rmDependencies() async {
+  // Application layer (Facade services)
+
+  // Custom Supply
+  serviceLocator.registerLazySingleton<CustomSupplyFacadeService>(
+    () => CustomSupplyFacadeService(
+      customSupplyRepository: serviceLocator<CustomSupplyRepository>(),
+    ),
+  );
+
+  // Branch
+  serviceLocator.registerLazySingleton<BranchFacadeService>(
+    () => BranchFacadeService(
+      branchRepository: serviceLocator<BranchRepository>(),
+    ),
+  );
+
+  // Infrastructure layer (Repositories and Data Providers)
+
+  // Custom Supply
+  serviceLocator.registerLazySingleton<CustomSupplyRemoteDataProvider>(
+    () => CustomSupplyRemoteDataProvider(),
+  );
+
+  serviceLocator.registerLazySingleton<CustomSupplyRepository>(
+    () => CustomSupplyRepositoryImpl(
+      customSupplyRemoteDataProvider:
+          serviceLocator<CustomSupplyRemoteDataProvider>(),
+    ),
+  );
+
+  // Branch
+  serviceLocator.registerLazySingleton<BranchRemoteDataProvider>(
+    () => BranchRemoteDataProvider(),
+  );
+
+  serviceLocator.registerLazySingleton<BranchRepository>(
+    () => BranchRepositoryImpl(
+      branchRemoteDataProvider:
+          serviceLocator<BranchRemoteDataProvider>(),
+    ),
+  );
+
+  // Presentation layer
+  
+  // Custom Supply List Bloc
+  serviceLocator.registerFactory<CustomSupplyListBloc>(
+    () => CustomSupplyListBloc(
+      customSupplyFacadeService: serviceLocator<CustomSupplyFacadeService>(),
+    ),
+  );
+
+  // Branch List Bloc
+  serviceLocator.registerFactory<BranchListBloc>(
+    () => BranchListBloc(
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+    ),
+  );
 }
 
 /// Configures the dependencies for the Communications context.
