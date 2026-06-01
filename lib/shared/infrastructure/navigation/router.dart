@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bloc.dart';
+import 'package:restock/iam/presentation/views/sign_in_form/pages/sign_in_form_screen.dart';
 import 'package:restock/injections.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_event.dart';
 import 'package:restock/resources/presentation/branches/pages/branch_page.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_event.dart';
 import 'package:restock/resources/presentation/inventory_management/pages/inventory_page.dart';
+import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 import '../../presentation/widgets/shell_scaffold.dart';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
-
-/// This file defines the application's routing configuration using the GoRouter package. It sets up the routes for different pages in the app, including the inventory page, and uses a shell scaffold to provide a consistent layout across all pages.
-final GoRouter router = GoRouter(
+GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
   initialLocation: '/inventory',
+  refreshListenable: authNotifier,
+  redirect: (context, state) {
+    final isLoggedIn = authNotifier.isAuthenticated;
+    final isOnLogin = state.matchedLocation == '/login';
+
+    if (!isLoggedIn && !isOnLogin) return '/login';
+    if (isLoggedIn && isOnLogin) return '/inventory';
+    return null;
+  },
   routes: [
+    GoRoute(
+      path: '/login',
+      builder: (_, _) => BlocProvider<SignInBloc>(
+        create: (_) => serviceLocator<SignInBloc>(),
+        child: const SignInPage(),
+      ),
+    ),
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) {
-        return ShellScaffold(
-          navigationShell: navigationShell,
-        );
-      },
+      builder: (context, state, navigationShell) =>
+          ShellScaffold(navigationShell: navigationShell),
       branches: [
         StatefulShellBranch(
           routes: [
@@ -35,8 +49,9 @@ final GoRouter router = GoRouter(
             GoRoute(
               path: '/inventory',
               builder: (context, state) => BlocProvider<CustomSupplyListBloc>(
-                create: (context) => serviceLocator<CustomSupplyListBloc>()
-                  ..add(const GetCustomSuppliesByBranchId()),
+                create: (context) =>
+                    serviceLocator<CustomSupplyListBloc>()
+                      ..add(const GetCustomSuppliesByBranchId()),
                 child: const InventoryPage(),
               ),
             ),
@@ -63,9 +78,10 @@ final GoRouter router = GoRouter(
             GoRoute(
               path: '/settings',
               builder: (_, _) => BlocProvider<BranchListBloc>(
-                create: (context) => serviceLocator<BranchListBloc>()..add(const GetBranches()),
+                create: (context) =>
+                    serviceLocator<BranchListBloc>()..add(const GetBranches()),
                 child: const BranchesPage(),
-              )
+              ),
             ),
           ],
         ),
