@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A reusable button widget for the Restock application, with built-in loading state and customizable text and height.
 class RestockButton extends StatelessWidget {
   const RestockButton({
     super.key,

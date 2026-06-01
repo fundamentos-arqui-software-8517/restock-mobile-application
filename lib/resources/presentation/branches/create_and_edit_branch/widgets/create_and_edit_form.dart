@@ -10,6 +10,7 @@ import 'package:restock/shared/presentation/widgets/image_picker_field.dart';
 import 'package:restock/shared/presentation/widgets/restok_button.dart';
 import 'package:restock/shared/presentation/widgets/text_field.dart';
 
+/// A widget that provides a form for creating or editing a branch, including fields for name, address, state/region, city, country, description, and an image picker. It listens to the [CreateAndEditBranchBloc] for state changes and dispatches events when the user interacts with the form.
 class CreateAndEditBranchPage extends StatelessWidget {
   const CreateAndEditBranchPage({super.key, this.branch});
 
@@ -31,6 +32,8 @@ class _CreateAndEditBranchView extends StatefulWidget {
       _CreateAndEditBranchViewState();
 }
 
+/// State class for [_CreateAndEditBranchView] that manages the form controllers and listens to the [CreateAndEditBranchBloc] for handling form submission and displaying success or error messages.
+/// It initializes the form fields with the existing branch data if editing, and dispatches events to the bloc when the user changes any field or submits the form.
 class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();

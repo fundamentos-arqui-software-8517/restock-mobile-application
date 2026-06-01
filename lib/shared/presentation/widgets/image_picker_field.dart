@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+/// A widget that allows users to pick an image from their gallery and displays it.
+/// It also supports displaying an existing image from a URL if provided.
 class ImagePickerField extends StatefulWidget {
   const ImagePickerField({required this.onImagePicked, this.imageUrl, super.key});
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restock/shared/presentation/utils/ui/theme.dart';
 
-
+/// A widget that displays an image for a branch, along with a status badge indicating whether the branch is active or inactive. The image is loaded from a URL, and if it fails to load, a placeholder icon is shown instead. The status badge is positioned in the top-right corner of the image and changes color based on the branch's status.
 class BranchImage extends StatelessWidget {
   const BranchImage({
     super.key,

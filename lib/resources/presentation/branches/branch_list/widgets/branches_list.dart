@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/presentation/branches/branch_list/widgets/branch_card.dart';
 
+/// A widget that displays a list of branches in a scrollable view. It uses a [SliverList] to display each branch as a [BranchCard], and includes padding and spacing between the cards. This widget is typically used within a [CustomScrollView] to allow for flexible scrolling behavior.
 class BranchesList extends StatelessWidget {
   const BranchesList({super.key, required this.branches});
 

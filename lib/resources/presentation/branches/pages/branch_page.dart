@@ -12,6 +12,9 @@ import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/utils/ui/theme.dart';
 import 'package:restock/shared/presentation/widgets/app_bar.dart';
 
+/// Page that displays the list of branches and allows users to add new branches.
+/// It uses [BranchListBloc] to manage the state of the branch list and
+/// [CreateAndEditBranchBloc] for handling the creation and editing of branches.
 class BranchesPage extends StatefulWidget {
   const BranchesPage({super.key});
 

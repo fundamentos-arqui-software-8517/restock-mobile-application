@@ -9,6 +9,7 @@ import 'package:restock/resources/presentation/branches/create_and_edit_branch/b
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/widgets/create_and_edit_form.dart';
 import 'package:restock/shared/presentation/utils/ui/theme.dart';
 
+/// A widget that represents a card displaying information about a branch, including its image, name, and address. The card is interactive, allowing users to long-press to open an edit sheet where they can modify the branch's details. The edit sheet uses the [CreateAndEditBranchBloc] to manage the state of the form and handle updates to the branch information.
 class BranchCard extends StatelessWidget {
   const BranchCard({super.key, required this.branch});
 

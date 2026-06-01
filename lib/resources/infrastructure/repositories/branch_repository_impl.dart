@@ -42,7 +42,7 @@ class BranchRepositoryImpl implements BranchRepository {
       );
       final branchResponse = await branchRemoteDataProvider.registerBranch(
         request,
-        command.accountId, // ← accountId para el endpoint correcto
+        command.accountId,
       );
       return branchResponse.toDomain();
     } catch (e) {
