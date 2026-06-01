@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:restock/resources/presentation/custom_supply_list/bloc/custom_supply_list_bloc.dart';
-import 'package:restock/resources/presentation/custom_supply_list/bloc/custom_supply_list_state.dart';
-import 'package:restock/resources/presentation/custom_supply_list/widgets/custom_supply_list.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_state.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/widgets/custom_supply_list.dart';
 import 'package:restock/resources/presentation/inventory_management/widgets/empty_inventory_view.dart';
 import 'package:restock/shared/presentation/widgets/app_bar.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restock/resources/domain/entities/custom_supply.dart';
-import 'package:restock/resources/presentation/custom_supply_list/widgets/custom_supply_card.dart';
-import 'package:restock/resources/presentation/custom_supply_list/widgets/dotted_add_card.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/widgets/custom_supply_card.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/widgets/dotted_add_card.dart';
 
 /// A widget that displays a list of custom supplies in a grid format, along with a search bar and an option to add new supplies.
 /// 

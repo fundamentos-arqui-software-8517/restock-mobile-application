@@ -2,12 +2,9 @@ import 'package:restock/resources/domain/repositories/custom_supply_repository.d
 import 'package:restock/resources/domain/entities/custom_supply.dart';
 
 /// Facade service to manage resource-related operations
-class ResourceManagementFacadeService {
-
-  /// Constructor for the ResourceManagementFacadeService
-  const ResourceManagementFacadeService({
-    required this.customSupplyRepository,
-  });
+class CustomSupplyFacadeService {
+  /// Constructor for the CustomSupplyFacadeService
+  const CustomSupplyFacadeService({required this.customSupplyRepository});
 
   /// Repository for managing custom supply data
   final CustomSupplyRepository customSupplyRepository;

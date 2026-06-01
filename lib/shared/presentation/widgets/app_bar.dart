@@ -57,7 +57,6 @@ class RestockAppBar extends StatelessWidget implements PreferredSizeWidget {
                 size: 26,
               ),
               onPressed: () {
-                // Acción estática temporal
               },
             ),
             Positioned(
