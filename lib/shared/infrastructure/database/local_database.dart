@@ -30,7 +30,25 @@ class AppDatabase {
     
     return await openDatabase(
       path,
-      version: DatabaseConstants.databaseVersion
+      version: DatabaseConstants.databaseVersion,
+      onCreate: _onCreate,
     );
+  }
+
+  Future<void> _onCreate(Database db, int version) async {
+  await db.execute('''
+    CREATE TABLE ${DatabaseConstants.branchesTable} (
+      ${DatabaseConstants.branchId} TEXT PRIMARY KEY,
+      ${DatabaseConstants.branchAccountId} TEXT NOT NULL,
+      ${DatabaseConstants.branchName} TEXT NOT NULL,
+      ${DatabaseConstants.branchAddress} TEXT NOT NULL,
+      ${DatabaseConstants.branchCity} TEXT NOT NULL,
+      ${DatabaseConstants.branchStateOrRegion} TEXT NOT NULL,
+      ${DatabaseConstants.branchCountry} TEXT NOT NULL,
+      ${DatabaseConstants.branchImageUrl} TEXT NOT NULL,
+      ${DatabaseConstants.branchStatus} TEXT NOT NULL,
+      ${DatabaseConstants.branchDescription} TEXT NOT NULL
+    )
+  ''');
   }
 }

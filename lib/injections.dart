@@ -10,6 +10,7 @@ import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
 import 'package:restock/resources/domain/repositories/branch_repository.dart';
 import 'package:restock/resources/domain/repositories/custom_supply_repository.dart';
+import 'package:restock/resources/infrastructure/data_sources/branch_local_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/branch_remote_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
 import 'package:restock/resources/infrastructure/repositories/branch_repository_impl.dart';
@@ -18,6 +19,7 @@ import 'package:restock/resources/presentation/branches/branch_detail/bloc/branc
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
+import 'package:restock/shared/infrastructure/database/local_database.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 import 'package:restock/shared/infrastructure/storage/token_storage.dart';
 
@@ -27,6 +29,7 @@ final serviceLocator = GetIt.instance;
 /// Sets up all the dependencies for the application.
 Future<void> setupDependencies() async {
   await secureStorageDependencies();
+  await localDatabase();
   await iamDependencies();
   await profileDependencies();
   await analyticsDependencies();
@@ -44,15 +47,16 @@ Future<void> secureStorageDependencies() async {
     ),
   );
 
-  serviceLocator.registerLazySingleton<TokenStorage>(
-    () => TokenStorage(),
-  );
+  serviceLocator.registerLazySingleton<TokenStorage>(() => TokenStorage());
 
   serviceLocator.registerLazySingleton<AuthStatusNotifier>(
     () => AuthStatusNotifier(tokenStorage: serviceLocator<TokenStorage>()),
   );
 }
 
+Future<void> localDatabase() async {
+  serviceLocator.registerLazySingleton<AppDatabase>(() => AppDatabase());
+}
 
 /// Configures the dependencies for the IAM context.
 Future<void> iamDependencies() async {
@@ -84,18 +88,15 @@ Future<void> iamDependencies() async {
 
   // Authentication - Sign In
   serviceLocator.registerFactory<SignInBloc>(
-    () => SignInBloc(
-      authFacadeService: serviceLocator<AuthFacadeService>(),
-    ),
+    () => SignInBloc(authFacadeService: serviceLocator<AuthFacadeService>()),
   );
 
   serviceLocator.registerLazySingleton<AuthHttpClient>(
-  () => AuthHttpClient(
-    tokenStorage: serviceLocator<TokenStorage>(),
-    authStatusNotifier: serviceLocator<AuthStatusNotifier>(),
-  ),
-);
-
+    () => AuthHttpClient(
+      tokenStorage: serviceLocator<TokenStorage>(),
+      authStatusNotifier: serviceLocator<AuthStatusNotifier>(),
+    ),
+  );
 }
 
 /// Configures the dependencies for the Profile context.
@@ -145,20 +146,22 @@ Future<void> rmDependencies() async {
 
   // Branch
   serviceLocator.registerLazySingleton<BranchRemoteDataProvider>(
-    () => BranchRemoteDataProvider(
-      http: serviceLocator<AuthHttpClient>(),
-    ),
+    () => BranchRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<BranchLocalDataProvider>(
+    () => BranchLocalDataProvider(appDatabase: serviceLocator<AppDatabase>()),
   );
 
   serviceLocator.registerLazySingleton<BranchRepository>(
     () => BranchRepositoryImpl(
-      branchRemoteDataProvider:
-          serviceLocator<BranchRemoteDataProvider>(),
+      branchRemoteDataProvider: serviceLocator<BranchRemoteDataProvider>(),
+      branchLocalDataProvider: serviceLocator<BranchLocalDataProvider>(),
     ),
   );
 
   // Presentation layer
-  
+
   // Custom Supply List Bloc
   serviceLocator.registerFactory<CustomSupplyListBloc>(
     () => CustomSupplyListBloc(
