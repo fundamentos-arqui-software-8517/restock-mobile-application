@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
+/// A request model for updating an existing branch, containing all necessary information.
 class UpdateBranchRequest {
   const UpdateBranchRequest({
     required this.name,
@@ -20,6 +21,7 @@ class UpdateBranchRequest {
   final String description;
   final XFile? image;
 
+  /// Converts this request into a multipart HTTP request for sending to the server.
   Future<http.MultipartRequest> toMultipartRequest(Uri uri) async {
     final request = http.MultipartRequest('PUT', uri);
 

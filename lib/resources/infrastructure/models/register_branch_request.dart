@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:image_picker/image_picker.dart';
 
+/// A request model for registering a new branch, containing all necessary information.
 class RegisterBranchRequest {
   const RegisterBranchRequest({
     required this.name,
@@ -21,6 +22,7 @@ class RegisterBranchRequest {
   final String description;
   final XFile? image;
 
+  /// Converts this request into a multipart HTTP request for sending to the server.
   Future<http.MultipartRequest> toMultipartRequest(Uri uri, String method) async {
     final request = http.MultipartRequest(method, uri);
 
