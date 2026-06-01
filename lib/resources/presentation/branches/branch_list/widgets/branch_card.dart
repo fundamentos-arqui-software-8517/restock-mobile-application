@@ -49,7 +49,7 @@ class BranchCard extends StatelessWidget {
                     const SizedBox(width: 3),
                     Expanded(
                       child: Text(
-                        '${branch.address.address}, ${branch.address.city}',
+                        branch.fullAddress,
                         style: const TextStyle(
                           color: _textSecondary,
                           fontSize: 12,

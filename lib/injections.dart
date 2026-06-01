@@ -123,6 +123,7 @@ Future<void> rmDependencies() async {
   serviceLocator.registerLazySingleton<BranchFacadeService>(
     () => BranchFacadeService(
       branchRepository: serviceLocator<BranchRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
     ),
   );
 
@@ -142,7 +143,9 @@ Future<void> rmDependencies() async {
 
   // Branch
   serviceLocator.registerLazySingleton<BranchRemoteDataProvider>(
-    () => BranchRemoteDataProvider(),
+    () => BranchRemoteDataProvider(
+      http: serviceLocator<AuthHttpClient>(),
+    ),
   );
 
   serviceLocator.registerLazySingleton<BranchRepository>(

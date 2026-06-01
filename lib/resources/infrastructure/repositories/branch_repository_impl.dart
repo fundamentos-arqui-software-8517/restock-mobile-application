@@ -17,10 +17,10 @@ class BranchRepositoryImpl implements BranchRepository {
 
   /// Fetches a list of branches from the remote data provider.
   @override
-  Future<List<Branch>> getBranchesByAccountId() async {
+  Future<List<Branch>> getBranchesByAccountId(String accountId) async {
     try {
       final branchesResponse =
-          await branchRemoteDataProvider.getBranchesByAccountId('1');
+          await branchRemoteDataProvider.getBranchesByAccountId(accountId);
 
       return branchesResponse
           .map((response) => response.toDomain())

@@ -17,7 +17,7 @@ class BranchImage extends StatelessWidget {
   Color get _badgeColor {
     switch (status.toLowerCase()) {
       case 'active':
-        return const Color(0xFF4ECCA3);
+        return const Color.fromARGB(255, 0, 212, 141);
       case 'inactive':
         return const Color(0xFFE24B4A);
       default:
