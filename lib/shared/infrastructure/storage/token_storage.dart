@@ -2,7 +2,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Used for storing ids and token for fast access through the application.
 class TokenStorage {
-    final _storage = FlutterSecureStorage();
+
+  late final FlutterSecureStorage _storage;
+
+  TokenStorage() {
+    _storage = const FlutterSecureStorage();
+  }
     final _key = 'token';
     final _accountId = 'account_id';
     final _userId = 'user_id';
