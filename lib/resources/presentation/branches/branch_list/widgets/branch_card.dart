@@ -5,6 +5,7 @@ import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_event.dart';
 import 'package:restock/resources/presentation/branches/branch_list/widgets/branch_image.dart';
+import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/widgets/create_and_edit_form.dart';
 import 'package:restock/shared/presentation/utils/ui/theme.dart';
@@ -75,6 +76,8 @@ class BranchCard extends StatelessWidget {
   }
 
   void _openEditSheet(BuildContext context) async {
+    final branchListBloc = context.read<BranchListBloc>();
+
     final updated = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -82,11 +85,20 @@ class BranchCard extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => BlocProvider(
-        create: (_) => CreateAndEditBranchBloc(
-          branchFacadeService: context.read<BranchFacadeService>(),
-          branch: branch,
-        ),
+      builder: (_) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => CreateAndEditBranchBloc(
+              branchFacadeService: context.read<BranchFacadeService>(),
+              branch: branch,
+            ),
+          ),
+          BlocProvider(
+            create: (_) => UpdateBranchStatusBloc(
+              branchFacadeService: context.read<BranchFacadeService>(),
+            ),
+          ),
+        ],
         child: Padding(
           padding: MediaQuery.viewInsetsOf(context),
           child: CreateAndEditBranchPage(branch: branch),
@@ -94,8 +106,8 @@ class BranchCard extends StatelessWidget {
       ),
     );
 
-    if (updated == true && context.mounted) {
-      context.read<BranchListBloc>().add(const GetBranches());
+    if (updated == true) {
+      branchListBloc.add(const GetBranches());
     }
   }
 }

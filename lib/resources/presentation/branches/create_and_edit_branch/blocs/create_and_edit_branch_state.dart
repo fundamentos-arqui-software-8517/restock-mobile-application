@@ -13,6 +13,7 @@ class CreateAndEditBranchState {
     this.country = '',
     this.description = '',
     this.image,
+    this.branchStatus = 'active',
     this.errorMessage,
   });
 
@@ -25,6 +26,7 @@ class CreateAndEditBranchState {
   final String country;
   final String description;
   final XFile? image;
+  final String branchStatus;
   final String? errorMessage;
 
   /// Indicates whether the form is in editing mode (editing an existing branch) or creating mode (creating a new branch). It returns true if the [branchId] is not null, which means we are editing an existing branch.
@@ -49,6 +51,7 @@ class CreateAndEditBranchState {
     String? country,
     String? description,
     XFile? image,
+    String? branchStatus,
     String? errorMessage,
   }) {
     return CreateAndEditBranchState(
@@ -61,6 +64,7 @@ class CreateAndEditBranchState {
       country: country ?? this.country,
       description: description ?? this.description,
       image: image ?? this.image,
+      branchStatus: branchStatus ?? this.branchStatus,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

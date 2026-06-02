@@ -113,20 +113,20 @@ class BranchRemoteDataProvider {
 
   /// Updates the status of a branch with the given [UpdateBranchStatusCommand] and [branchId].
   Future<void> updateBranchStatus(UpdateBranchStatusRequest command) async {
-  try {
-    final Uri uri = Uri.parse(
-      '${ApiConstants.baseUrl}${ApiConstants.branchStatus.replaceAll('{branchId}', command.branchId)}',
-    );
-    final response = await http.patch(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'status': command.status}),
-    );
-    if (response.statusCode != HttpStatus.ok) {
-      throw Exception('Failed to update branch status: ${response.statusCode}');
+    try {
+      final Uri uri = Uri.parse(
+        '${ApiConstants.baseUrl}${ApiConstants.branchStatus.replaceAll('{branchId}', command.branchId)}',
+      );
+      final response = await http.patch(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'status': command.status}),
+      );
+      if (response.statusCode == 204 || response.statusCode == 200) {
+        return;
+      }
+    } catch (e) {
+      rethrow;
     }
-  } catch (e) {
-    rethrow;
   }
-}
 }

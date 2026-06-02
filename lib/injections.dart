@@ -17,6 +17,7 @@ import 'package:restock/resources/infrastructure/repositories/branch_repository_
 import 'package:restock/resources/infrastructure/repositories/custom_supply_repository_impl.dart';
 import 'package:restock/resources/presentation/branches/branch_detail/bloc/branch_detail_bloc.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
+import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
 import 'package:restock/shared/infrastructure/database/local_database.dart';
@@ -184,6 +185,12 @@ Future<void> rmDependencies() async {
 
   serviceLocator.registerFactory<CreateAndEditBranchBloc>(
     () => CreateAndEditBranchBloc(
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<UpdateBranchStatusBloc>(
+    () => UpdateBranchStatusBloc(
       branchFacadeService: serviceLocator<BranchFacadeService>(),
     ),
   );

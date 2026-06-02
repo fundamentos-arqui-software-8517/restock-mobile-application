@@ -2,14 +2,21 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// A widget that allows users to pick an image from their gallery and displays it.
 /// It also supports displaying an existing image from a URL if provided.
 class ImagePickerField extends StatefulWidget {
-  const ImagePickerField({required this.onImagePicked, this.imageUrl, super.key});
+  const ImagePickerField({
+    required this.onImagePicked,
+    this.imageUrl,
+    this.enabled = true,
+    super.key,
+  });
 
-  final ValueChanged<XFile?> onImagePicked;
+  final ValueChanged<XFile?>? onImagePicked;
   final String? imageUrl;
+  final bool enabled;
 
   @override
   State<ImagePickerField> createState() => _ImagePickerFieldState();
@@ -19,15 +26,11 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
   XFile? _picked;
 
   Future<void> _pick() async {
+    if (!widget.enabled) return;
     final file = await ImagePicker().pickImage(source: ImageSource.gallery);
-
     if (file == null) return;
-
-    setState(() {
-      _picked = file;
-    });
-
-    widget.onImagePicked(file);
+    setState(() => _picked = file);
+    widget.onImagePicked?.call(file);
   }
 
   @override
@@ -47,12 +50,22 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
     } else if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
       content = ClipRRect(
         borderRadius: BorderRadius.circular(9),
-        child: Image.network(
-          widget.imageUrl!,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          errorBuilder: (_, _, _) {
+        child: FutureBuilder<File>(
+          future: DefaultCacheManager().getSingleFile(widget.imageUrl!),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Image.file(
+                snapshot.data!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              );
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              );
+            }
             return const Center(
               child: Icon(
                 Icons.broken_image_outlined,
@@ -64,16 +77,24 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
         ),
       );
     } else {
-      content = const Column(
+      content = Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.camera_alt_outlined, color: Color(0xFF9AA5B4), size: 28),
-          SizedBox(height: 8),
+          Icon(
+            Icons.camera_alt_outlined,
+            color: widget.enabled
+                ? const Color(0xFF9AA5B4)
+                : const Color(0xFFCCCCCC),
+            size: 28,
+          ),
+          const SizedBox(height: 8),
           Text(
             'FACILITY IMAGE —\nUPLOAD COVER PHOTO',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Color(0xFF9AA5B4),
+              color: widget.enabled
+                  ? const Color(0xFF9AA5B4)
+                  : const Color(0xFFCCCCCC),
               fontSize: 11,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.8,
@@ -85,14 +106,21 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
     }
 
     return GestureDetector(
-      onTap: _pick,
+      onTap: widget.enabled ? _pick : null,
       child: Container(
         height: 130,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: const Color(0xFFF7F8FA),
+          color: widget.enabled
+              ? const Color(0xFFF7F8FA)
+              : const Color(0xFFF0F0F0),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFCDD2D9), width: 1.5),
+          border: Border.all(
+            color: widget.enabled
+                ? const Color(0xFFCDD2D9)
+                : const Color(0xFFEEEEEE),
+            width: 1.5,
+          ),
         ),
         clipBehavior: Clip.hardEdge,
         child: content,

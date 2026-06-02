@@ -51,3 +51,9 @@ class CreateAndEditBranchImageChanged extends CreateAndEditBranchEvent {
 class CreateAndEditBranchSubmitted extends CreateAndEditBranchEvent {
   const CreateAndEditBranchSubmitted();
 }
+
+/// Event when the branch status changes (active/inactive).
+class CreateAndEditBranchStatusChanged extends CreateAndEditBranchEvent {
+  const CreateAndEditBranchStatusChanged(this.isActive);
+  final bool isActive;
+}
