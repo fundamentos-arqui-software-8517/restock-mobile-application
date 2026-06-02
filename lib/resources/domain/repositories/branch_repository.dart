@@ -1,6 +1,7 @@
 import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/domain/entities/register_branch_command.dart';
 import 'package:restock/resources/domain/entities/update_branch_command.dart';
+import 'package:restock/resources/domain/entities/update_branch_status_command.dart';
 
 /// Repository for fetching branches related to an account.
 abstract class BranchRepository {
@@ -16,4 +17,7 @@ abstract class BranchRepository {
 
   // Fetches a branch by its ID.
   Future<Branch> getBranchById(String branchId);
+
+  /// Updates the status of a branch with the given [UpdateBranchStatusCommand].
+  Future<void> updateBranchStatus(UpdateBranchStatusCommand command);
 }

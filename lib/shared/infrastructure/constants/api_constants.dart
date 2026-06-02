@@ -25,4 +25,6 @@ class ApiConstants {
   static final String branchesByAccountId = 'accounts/{accountId}/branches';
 
   static String branchById = 'branches/{branchId}';
+
+  static String branchStatus = 'branches/{branchId}/status';
 }

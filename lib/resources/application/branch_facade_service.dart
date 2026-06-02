@@ -2,6 +2,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/domain/entities/register_branch_command.dart';
 import 'package:restock/resources/domain/entities/update_branch_command.dart';
+import 'package:restock/resources/domain/entities/update_branch_status_command.dart';
 import 'package:restock/resources/domain/repositories/branch_repository.dart';
 import 'package:restock/shared/infrastructure/storage/token_storage.dart';
 
@@ -94,10 +95,23 @@ class BranchFacadeService {
 
   // Fetches a branch by its ID.
   Future<Branch> getBranchById(String branchId) async {
-  try {
-    return await branchRepository.getBranchById(branchId);
-  } catch (e) {
-    throw Exception('Failed to fetch branch: $e');
+    try {
+      return await branchRepository.getBranchById(branchId);
+    } catch (e) {
+      throw Exception('Failed to fetch branch: $e');
+    }
   }
-}
+
+  /// Updates the status of a branch with the provided status.
+  Future<void> updateBranchStatus(String branchId, String status) async {
+    try {
+      final updateBranchStatusCommand = UpdateBranchStatusCommand(
+        status: status,
+        branchId: branchId,
+      );
+      await branchRepository.updateBranchStatus(updateBranchStatusCommand);
+    } catch (e) {
+      throw Exception('Failed to update branch status: $e');
+    }
+  }
 }
