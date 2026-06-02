@@ -35,6 +35,7 @@ class AppDatabase {
     );
   }
 
+  /// Creates the necessary tables in the database when it is first created.
   Future<void> _onCreate(Database db, int version) async {
   await db.execute('''
     CREATE TABLE ${DatabaseConstants.branchesTable} (

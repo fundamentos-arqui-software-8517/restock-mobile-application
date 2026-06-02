@@ -3,6 +3,7 @@ import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/domain/entities/address.dart';
 import 'package:restock/shared/infrastructure/constants/database_constants.dart';
 
+/// Represents a branch entity in the database.
 class BranchEntity {
   const BranchEntity({
     required this.branchId,
@@ -28,6 +29,7 @@ class BranchEntity {
   final String status;
   final String description;
 
+  /// Creates a [BranchEntity] from a map retrieved from the database.
   factory BranchEntity.fromMap(Map<String, dynamic> map) {
     return BranchEntity(
       branchId: map[DatabaseConstants.branchId],
@@ -43,6 +45,7 @@ class BranchEntity {
     );
   }
 
+  /// Converts the [BranchEntity] to a map for storing in the database.
   Map<String, dynamic> toMap() {
     return {
       DatabaseConstants.branchId: branchId,
@@ -58,6 +61,7 @@ class BranchEntity {
     };
   }
 
+  /// Creates a [BranchEntity] from a [Branch] domain model and an account ID.
   factory BranchEntity.fromDomain(Branch branch, String accountId) {
     return BranchEntity(
       branchId: branch.branchId,
@@ -73,6 +77,7 @@ class BranchEntity {
     );
   }
 
+  /// Converts the [BranchEntity] to a [Branch] domain model.
   Branch toDomain() {
     return Branch(
       branchId: branchId,

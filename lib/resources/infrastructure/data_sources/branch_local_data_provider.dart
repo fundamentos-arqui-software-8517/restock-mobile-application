@@ -3,17 +3,23 @@ import 'package:restock/shared/infrastructure/constants/database_constants.dart'
 import 'package:restock/shared/infrastructure/database/local_database.dart';
 import 'package:sqflite/sqflite.dart';
 
+/// Handles local data operations for Branch entities using SQLite.
 class BranchLocalDataProvider {
+
+  /// Initializes the BranchLocalDataProvider with the provided AppDatabase instance.
   BranchLocalDataProvider({required this.appDatabase});
 
+  /// The AppDatabase instance used for database operations.
   final AppDatabase appDatabase;
 
+  /// Retrieves all Branch entities from the local database.
   Future<List<BranchEntity>> getBranches() async {
     final db = await appDatabase.database;
     final result = await db.query(DatabaseConstants.branchesTable);
     return result.map(BranchEntity.fromMap).toList();
   }
 
+  /// Retrieves a Branch entity by its ID from the local database.
   Future<BranchEntity?> getBranchById(String branchId) async {
     final db = await appDatabase.database;
     final result = await db.query(
@@ -25,6 +31,7 @@ class BranchLocalDataProvider {
     return BranchEntity.fromMap(result.first);
   }
 
+  /// Saves a list of Branch entities to the local database, replacing existing entries with the same ID.
   Future<void> saveBranches(List<BranchEntity> branches) async {
     final db = await appDatabase.database;
     final batch = db.batch();
@@ -38,6 +45,7 @@ class BranchLocalDataProvider {
     await batch.commit(noResult: true);
   }
 
+  /// Saves a single Branch entity to the local database, replacing existing entry with the same ID.
   Future<void> saveBranch(BranchEntity branch) async {
     final db = await appDatabase.database;
     await db.insert(
@@ -47,6 +55,7 @@ class BranchLocalDataProvider {
     );
   }
 
+  /// Deletes a Branch entity by its ID from the local database.
   Future<void> deleteBranch(String branchId) async {
     final db = await appDatabase.database;
     await db.delete(
@@ -56,6 +65,7 @@ class BranchLocalDataProvider {
     );
   }
 
+  /// Clears all Branch entities from the local database.
   Future<void> clearBranches() async {
     final db = await appDatabase.database;
     await db.delete(DatabaseConstants.branchesTable);
