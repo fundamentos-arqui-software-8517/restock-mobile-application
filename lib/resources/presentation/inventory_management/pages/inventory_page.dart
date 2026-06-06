@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:restock/injections.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_bloc.dart';
+import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/widgets/create_custom_supply_form.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
+import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_event.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_state.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/widgets/custom_supply_list.dart';
 import 'package:restock/resources/presentation/inventory_management/widgets/empty_inventory_view.dart';
@@ -8,17 +12,40 @@ import 'package:restock/shared/presentation/widgets/app_bar.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 
 /// The main page for inventory management, displaying the list of custom supplies.
-/// 
+///
 /// Handles loading, error, and empty states for the inventory list using BlocBuilder to listen to the CustomSupplyListBloc.
 class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key});
+
+  Future<void> _openCreateSheet(BuildContext context) async {
+    final listBloc = context.read<CustomSupplyListBloc>();
+
+    final created = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => BlocProvider<CreateCustomSupplyBloc>(
+        create: (_) => serviceLocator<CreateCustomSupplyBloc>(),
+        child: Padding(
+          padding: MediaQuery.viewInsetsOf(context),
+          child: const CreateCustomSupplyForm(),
+        ),
+      ),
+    );
+
+    if (created == true) {
+      listBloc.add(const GetCustomSuppliesByBranchId());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
-      appBar: const RestockAppBar(
-      ),
+      appBar: const RestockAppBar(),
       body: BlocBuilder<CustomSupplyListBloc, CustomSupplyListState>(
         builder: (context, state) {
           switch (state.status) {
@@ -38,7 +65,9 @@ class InventoryPage extends StatelessWidget {
               );
             case Status.success:
               if (state.customSupplies.isEmpty) {
-                return const EmptyInventoryView();
+                return EmptyInventoryView(
+                  onAddSupply: () => _openCreateSheet(context),
+                );
               }
               return CustomSupplyListView(customSupplies: state.customSupplies);
           }

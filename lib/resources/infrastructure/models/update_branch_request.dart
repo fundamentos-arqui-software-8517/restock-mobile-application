@@ -23,7 +23,7 @@ class UpdateBranchRequest {
 
   /// Converts this request into a multipart HTTP request for sending to the server.
   Future<http.MultipartRequest> toMultipartRequest(Uri uri) async {
-    final request = http.MultipartRequest('PUT', uri);
+    final request = http.MultipartRequest('PATCH', uri);
 
     request.fields['name'] = name;
     request.fields['address'] = address;

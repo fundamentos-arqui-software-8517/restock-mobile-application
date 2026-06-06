@@ -7,24 +7,28 @@ class RestockButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.isLoading = false,
+    this.enabled = true,
     this.height = 54,
   });
 
   final String text;
   final VoidCallback? onPressed;
   final bool isLoading;
+  final bool enabled;
   final double height;
 
   @override
   Widget build(BuildContext context) {
+    final isDisabled = !enabled || isLoading;
+
     return GestureDetector(
-      onTap: isLoading ? null : onPressed,
+      onTap: isDisabled ? null : onPressed,
       child: Container(
         height: height,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: isLoading
-              ? const Color(0xFF1B4332).withValues(alpha: 0.6)
+          color: isDisabled
+              ? const Color(0xFF1B4332).withValues(alpha: 0.4)
               : const Color(0xFF1B4332),
           borderRadius: BorderRadius.circular(10),
         ),
@@ -40,8 +44,10 @@ class RestockButton extends StatelessWidget {
                 )
               : Text(
                   text,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: isDisabled
+                        ? Colors.white.withValues(alpha: 0.6)
+                        : Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,

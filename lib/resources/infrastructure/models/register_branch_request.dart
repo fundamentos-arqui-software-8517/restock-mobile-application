@@ -7,7 +7,7 @@ class RegisterBranchRequest {
   const RegisterBranchRequest({
     required this.name,
     required this.address,
-    required this.stateOrRegion,
+    required this.regionOrState,
     required this.city,
     required this.country,
     required this.description,
@@ -16,7 +16,7 @@ class RegisterBranchRequest {
 
   final String name;
   final String address;
-  final String stateOrRegion;
+  final String regionOrState;
   final String city;
   final String country;
   final String description;
@@ -28,7 +28,7 @@ class RegisterBranchRequest {
 
     request.fields['name'] = name;
     request.fields['address'] = address;
-    request.fields['stateOrRegion'] = stateOrRegion;
+    request.fields['regionOrState'] = regionOrState;
     request.fields['city'] = city;
     request.fields['country'] = country;
     request.fields['description'] = description;

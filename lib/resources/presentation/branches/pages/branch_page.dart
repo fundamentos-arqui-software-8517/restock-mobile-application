@@ -5,6 +5,7 @@ import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_event.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_state.dart';
 import 'package:restock/resources/presentation/branches/branch_list/widgets/branches_list.dart';
+import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/widgets/create_and_edit_form.dart';
 
@@ -25,8 +26,6 @@ class BranchesPage extends StatefulWidget {
 class _BranchesPageState extends State<BranchesPage> {
   @override
   Widget build(BuildContext context) {
-    context.read<BranchListBloc>().add(const GetBranches());
-
     return Scaffold(
       backgroundColor: background,
       appBar: const RestockAppBar(),
@@ -77,11 +76,21 @@ class _BranchesPageState extends State<BranchesPage> {
                         top: Radius.circular(20),
                       ),
                     ),
-                    builder: (_) => BlocProvider(
-                      create: (_) => CreateAndEditBranchBloc(
-                        branchFacadeService: context
-                            .read<BranchFacadeService>(),
-                      ),
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                          create: (_) => CreateAndEditBranchBloc(
+                            branchFacadeService:
+                                context.read<BranchFacadeService>(),
+                          ),
+                        ),
+                        BlocProvider(
+                          create: (_) => UpdateBranchStatusBloc(
+                            branchFacadeService:
+                                context.read<BranchFacadeService>(),
+                          ),
+                        ),
+                      ],
                       child: Padding(
                         padding: MediaQuery.viewInsetsOf(context),
                         child: const CreateAndEditBranchPage(),
