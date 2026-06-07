@@ -96,7 +96,7 @@ class DeviceRepositoryImpl implements DeviceRepository {
   @override
   Future<Device> assignBatch(AssignBatchCommand command) async {
     try {
-      final request = AssignBatchRequest(customSupplyId: command.customSupplyId);
+      final request = AssignBatchRequest(batchId: command.batchId);
       final response = await deviceRemoteDataProvider.assignBatch(
         command.deviceId,
         request,
@@ -123,11 +123,17 @@ class DeviceRepositoryImpl implements DeviceRepository {
   @override
   Future<Device> updateMeasurement(UpdateMeasurementCommand command) async {
     try {
+      final m = command.measurement;
+      final gross = m.grossWeight ?? (m.netWeight + m.tareWeight);
+      final date =
+          m.calibrationDate ?? DateTime.now().toIso8601String().substring(0, 10);
       final request = UpdateMeasurementRequest(
-        weightUnit: command.measurement.weightUnit,
-        unitWeight: command.measurement.unitWeight,
-        tareWeight: command.measurement.tareWeight,
-        calibrationDate: command.measurement.calibrationDate,
+        netWeight: m.netWeight,
+        tareWeight: m.tareWeight,
+        grossWeight: gross,
+        calibrationDate: date,
+        weightUnitName: m.weightUnitName,
+        weightUnitAbbreviation: m.weightUnitAbbreviation,
       );
       final response = await deviceRemoteDataProvider.updateMeasurement(
         command.deviceId,
