@@ -288,8 +288,15 @@ class DeviceListScreen extends StatelessWidget {
                     final device = state.filteredDevices[i];
                     return DeviceCard(
                       device: device,
-                      onTap: () =>
-                          context.push('/devices/${device.deviceId}'),
+                      onTap: () => context
+                          .push('/devices/${device.deviceId}')
+                          .then((_) {
+                        if (context.mounted) {
+                          context
+                              .read<DeviceListBloc>()
+                              .add(const GetDevices());
+                        }
+                      }),
                     );
                   },
                 ),

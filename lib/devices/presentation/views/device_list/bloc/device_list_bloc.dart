@@ -81,8 +81,8 @@ class DeviceListBloc extends Bloc<DeviceListEvent, DeviceListState> {
         status: DeviceStatus.fromApi(event.status),
         specifications: d.specifications,
         branchId: d.branchId,
-        customSupplyId: d.customSupplyId,
-        thresholdId: d.thresholdId,
+        assignedBatchId: d.assignedBatchId,
+        supplyThresholdId: d.supplyThresholdId,
         measurement: d.measurement,
       );
     }).toList();
