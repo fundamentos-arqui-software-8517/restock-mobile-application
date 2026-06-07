@@ -59,6 +59,11 @@ class _SupplySelectorContent extends StatelessWidget {
         final isLoadingSupplies = state.status == Status.loading;
         final hasFailed = state.status == Status.failure;
         final supplies = state.supplies;
+        final selectedSupply = value;
+        final dropdownSupplies =
+            selectedSupply != null && !supplies.contains(selectedSupply)
+            ? [selectedSupply, ...supplies]
+            : supplies;
 
         return DropdownButtonFormField<Supply>(
           initialValue: value,
@@ -70,10 +75,13 @@ class _SupplySelectorContent extends StatelessWidget {
           dropdownColor: Colors.white,
           borderRadius: BorderRadius.circular(12),
           onChanged:
-              enabled && !isLoadingSupplies && !hasFailed && supplies.isNotEmpty
+              enabled &&
+                  !isLoadingSupplies &&
+                  !hasFailed &&
+                  dropdownSupplies.isNotEmpty
               ? onChanged
               : null,
-          selectedItemBuilder: (context) => supplies
+          selectedItemBuilder: (context) => dropdownSupplies
               .map(
                 (supply) =>
                     SelectedSupply(supply: supply, isPlaceholder: false),
@@ -166,7 +174,7 @@ class _SupplySelectorContent extends StatelessWidget {
               ),
             ),
           ),
-          items: supplies
+          items: dropdownSupplies
               .map(
                 (supply) => DropdownMenuItem<Supply>(
                   value: supply,

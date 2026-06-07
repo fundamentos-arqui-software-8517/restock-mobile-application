@@ -27,7 +27,7 @@ class SupplyResponseModel {
     }
 
     return SupplyResponseModel(
-      supplyId: value('id'),
+      supplyId: value('id', fallback: value('_id')),
       name: value('name'),
       description: value('description'),
       category: value('category'),

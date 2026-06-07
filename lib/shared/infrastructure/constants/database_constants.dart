@@ -1,11 +1,10 @@
 /// This file contains constants related to the database configuration, such as the database name and version.
 class DatabaseConstants {
-
   /// The name of the database file.
   static const String databaseName = 'restock.db';
 
   /// The version of the database schema. Increment this number when making changes to the database structure.
-  static const int databaseVersion = 1;
+  static const int databaseVersion = 3;
 
   /// Branches table
   static const String branchesTable = 'branches';
@@ -29,22 +28,24 @@ class DatabaseConstants {
   static const String supplyDescription = 'description';
   static const String supplyCategory = 'category';
   static const String supplyIsPerishable = 'is_perishable';
+  static const String supplyIsCatalog = 'is_catalog';
 
   /// Custom Supplies table
   static const String customSuppliesTable = 'custom_supplies';
 
   static const String customSupplyId = 'custom_supply_id';
+  static const String customSupplySupplyId = 'supply_id';
   static const String customSupplyName = 'name';
   static const String customSupplyAccountId = 'account_id';
   static const String customSupplyDescription = 'description';
   static const String customSupplyUnitPriceAmount = 'unit_price_amount';
-  static const String customSupplyUnitPriceCurrencyCode = 'unit_price_currency_code';
+  static const String customSupplyUnitPriceCurrencyCode =
+      'unit_price_currency_code';
   static const String customSupplyMinimumStock = 'minimum_stock';
   static const String customSupplyMaximumStock = 'maximum_stock';
   static const String customSupplyUnitMeasurement = 'unit_measurement';
-  static const String customSupplyUnitMeasurementAbbreviation = 'unit_measurement_abbreviation';
+  static const String customSupplyUnitMeasurementAbbreviation =
+      'unit_measurement_abbreviation';
   static const String customSupplyPictureUrl = 'picture_url';
-
-  /// Foreign keys
-  static const String supplyIdForeignKey = 'supply_id';
+  static const String customSupplyPicturePublicId = 'picture_public_id';
 }

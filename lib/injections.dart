@@ -27,7 +27,9 @@ import 'package:restock/resources/domain/repositories/custom_supply_repository.d
 import 'package:restock/resources/domain/repositories/supply_repository.dart';
 import 'package:restock/resources/infrastructure/data_sources/branch_local_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/branch_remote_data_provider.dart';
+import 'package:restock/resources/infrastructure/data_sources/custom_supply_local_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
+import 'package:restock/resources/infrastructure/data_sources/supply_local_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/supply_remote_data_provider.dart';
 import 'package:restock/resources/infrastructure/repositories/branch_repository_impl.dart';
 import 'package:restock/resources/infrastructure/repositories/custom_supply_repository_impl.dart';
@@ -165,20 +167,36 @@ Future<void> rmDependencies() async {
         CustomSupplyRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
   );
 
+  serviceLocator.registerLazySingleton<CustomSupplyLocalDataProvider>(
+    () => CustomSupplyLocalDataProvider(
+      appDatabase: serviceLocator<AppDatabase>(),
+    ),
+  );
+
   serviceLocator.registerLazySingleton<CustomSupplyRepository>(
     () => CustomSupplyRepositoryImpl(
       customSupplyRemoteDataProvider:
           serviceLocator<CustomSupplyRemoteDataProvider>(),
+      customSupplyLocalDataProvider:
+          serviceLocator<CustomSupplyLocalDataProvider>(),
+      supplyRemoteDataProvider: serviceLocator<SupplyRemoteDataProvider>(),
+      supplyLocalDataProvider: serviceLocator<SupplyLocalDataProvider>(),
     ),
   );
 
+  // Supply
   serviceLocator.registerLazySingleton<SupplyRemoteDataProvider>(
     () => SupplyRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+
+  serviceLocator.registerLazySingleton<SupplyLocalDataProvider>(
+    () => SupplyLocalDataProvider(appDatabase: serviceLocator<AppDatabase>()),
   );
 
   serviceLocator.registerLazySingleton<SupplyRepository>(
     () => SupplyRepositoryImpl(
       supplyRemoteDataProvider: serviceLocator<SupplyRemoteDataProvider>(),
+      supplyLocalDataProvider: serviceLocator<SupplyLocalDataProvider>(),
     ),
   );
 

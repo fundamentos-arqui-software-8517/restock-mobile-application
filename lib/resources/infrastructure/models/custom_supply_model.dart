@@ -46,7 +46,7 @@ class CustomSupplyResponseModel {
     }
 
     return CustomSupplyResponseModel(
-      customSupplyId: value('id'),
+      customSupplyId: value('id', fallback: value('_id')),
       name: value('name'),
       description: value('description'),
       unitPriceAmount: value('unitPriceAmount'),
