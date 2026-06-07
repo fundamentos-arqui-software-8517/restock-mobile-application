@@ -1,5 +1,15 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:restock/devices/application/device_facade_service.dart';
+import 'package:restock/devices/application/device_threshold_facade_service.dart';
+import 'package:restock/devices/domain/repositories/device_repository.dart';
+import 'package:restock/devices/domain/repositories/device_threshold_repository.dart';
+import 'package:restock/devices/infrastructure/data_sources/device_remote_data_provider.dart';
+import 'package:restock/devices/infrastructure/data_sources/device_threshold_remote_data_provider.dart';
+import 'package:restock/devices/infrastructure/repositories/device_repository_impl.dart';
+import 'package:restock/devices/infrastructure/repositories/device_threshold_repository_impl.dart';
+import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
+import 'package:restock/devices/presentation/views/device_list/bloc/device_list_bloc.dart';
 import 'package:restock/iam/application/iam_facade_service.dart';
 import 'package:restock/iam/domain/repositories/auth_repository.dart';
 import 'package:restock/iam/infrastructure/data_sources/auth_remote_data_provider.dart';
@@ -43,6 +53,7 @@ Future<void> setupDependencies() async {
   await communicationsDependencies();
   await subscriptionsDependencies();
   await trackingDependencies();
+  await devicesDependencies();
 }
 
 // Secure Storage
@@ -241,4 +252,60 @@ Future<void> subscriptionsDependencies() async {
 Future<void> trackingDependencies() async {
   // For example:
   // serviceLocator.registerLazySingleton<YourTrackingService>(() => YourTrackingServiceImpl());
+}
+
+/// Configures the dependencies for the Devices context (EP-09).
+Future<void> devicesDependencies() async {
+  // Infrastructure
+  serviceLocator.registerLazySingleton<DeviceRemoteDataProvider>(
+    () => DeviceRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+  serviceLocator.registerLazySingleton<DeviceRepository>(
+    () => DeviceRepositoryImpl(
+      deviceRemoteDataProvider: serviceLocator<DeviceRemoteDataProvider>(),
+    ),
+  );
+
+  // Application
+  serviceLocator.registerLazySingleton<DeviceFacadeService>(
+    () => DeviceFacadeService(
+      deviceRepository: serviceLocator<DeviceRepository>(),
+      branchFacadeService: serviceLocator<BranchFacadeService>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
+
+  // Presentation
+  serviceLocator.registerFactory<DeviceListBloc>(
+    () => DeviceListBloc(
+      deviceFacadeService: serviceLocator<DeviceFacadeService>(),
+    ),
+  );
+  serviceLocator.registerFactory<DeviceDetailBloc>(
+    () => DeviceDetailBloc(
+      deviceFacadeService: serviceLocator<DeviceFacadeService>(),
+      deviceThresholdFacadeService:
+          serviceLocator<DeviceThresholdFacadeService>(),
+    ),
+  );
+
+  // Thresholds (M4)
+  serviceLocator.registerLazySingleton<DeviceThresholdRemoteDataProvider>(
+    () => DeviceThresholdRemoteDataProvider(
+      http: serviceLocator<AuthHttpClient>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<DeviceThresholdRepository>(
+    () => DeviceThresholdRepositoryImpl(
+      remoteDataProvider:
+          serviceLocator<DeviceThresholdRemoteDataProvider>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<DeviceThresholdFacadeService>(
+    () => DeviceThresholdFacadeService(
+      thresholdRepository: serviceLocator<DeviceThresholdRepository>(),
+      deviceRepository: serviceLocator<DeviceRepository>(),
+      tokenStorage: serviceLocator<TokenStorage>(),
+    ),
+  );
 }
