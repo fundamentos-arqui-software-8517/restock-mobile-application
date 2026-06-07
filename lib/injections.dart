@@ -2,10 +2,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:restock/devices/application/device_facade_service.dart';
 import 'package:restock/devices/application/device_threshold_facade_service.dart';
+import 'package:restock/devices/domain/repositories/batch_repository.dart';
 import 'package:restock/devices/domain/repositories/device_repository.dart';
 import 'package:restock/devices/domain/repositories/device_threshold_repository.dart';
+import 'package:restock/devices/infrastructure/data_sources/batch_remote_data_provider.dart';
 import 'package:restock/devices/infrastructure/data_sources/device_remote_data_provider.dart';
 import 'package:restock/devices/infrastructure/data_sources/device_threshold_remote_data_provider.dart';
+import 'package:restock/devices/infrastructure/repositories/batch_repository_impl.dart';
 import 'package:restock/devices/infrastructure/repositories/device_repository_impl.dart';
 import 'package:restock/devices/infrastructure/repositories/device_threshold_repository_impl.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
@@ -266,10 +269,21 @@ Future<void> devicesDependencies() async {
     ),
   );
 
+  serviceLocator.registerLazySingleton<BatchRemoteDataProvider>(
+    () => BatchRemoteDataProvider(http: serviceLocator<AuthHttpClient>()),
+  );
+  serviceLocator.registerLazySingleton<BatchRepository>(
+    () => BatchRepositoryImpl(
+      remoteDataProvider: serviceLocator<BatchRemoteDataProvider>(),
+    ),
+  );
+
   // Application
   serviceLocator.registerLazySingleton<DeviceFacadeService>(
     () => DeviceFacadeService(
       deviceRepository: serviceLocator<DeviceRepository>(),
+      batchRepository: serviceLocator<BatchRepository>(),
+      thresholdRepository: serviceLocator<DeviceThresholdRepository>(),
       branchFacadeService: serviceLocator<BranchFacadeService>(),
       tokenStorage: serviceLocator<TokenStorage>(),
     ),
