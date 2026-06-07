@@ -27,9 +27,9 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
     try {
       final device = await deviceFacadeService.getDeviceById(event.deviceId);
       var newState = state.copyWith(status: Status.success, device: device);
-      if (device.thresholdId != null) {
+      if (device.supplyThresholdId != null) {
         final threshold = await deviceThresholdFacadeService
-            .getThresholdById(device.thresholdId!);
+            .getThresholdById(device.supplyThresholdId!);
         newState = newState.copyWith(threshold: threshold);
       }
       emit(newState);
@@ -54,16 +54,25 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
     try {
       final updated = await deviceFacadeService.completeOnboarding(
         deviceId: deviceId,
+        batchId: event.batchId,
         customSupplyId: event.customSupplyId,
+        minStock: event.minStock,
+        maxStock: event.maxStock,
         measurement: event.measurement,
       );
-      emit(
-        state.copyWith(
-          status: Status.success,
-          device: updated,
-          isSubmitting: false,
-        ),
+      var newState = state.copyWith(
+        status: Status.success,
+        device: updated,
+        isSubmitting: false,
       );
+      if (updated.supplyThresholdId != null) {
+        try {
+          final threshold = await deviceThresholdFacadeService
+              .getThresholdById(updated.supplyThresholdId!);
+          newState = newState.copyWith(threshold: threshold);
+        } catch (_) {}
+      }
+      emit(newState);
     } catch (e) {
       emit(
         state.copyWith(
@@ -114,6 +123,7 @@ class DeviceDetailBloc extends Bloc<DeviceDetailEvent, DeviceDetailState> {
     try {
       final threshold = await deviceThresholdFacadeService.createAndAssign(
         deviceId: device.deviceId,
+        customSupplyId: state.threshold?.customSupplyId ?? '',
         minStock: event.minStock,
         maxStock: event.maxStock,
         anomalyThreshold: event.anomalyThreshold,

@@ -76,21 +76,29 @@ class _BatchInfo extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        _InfoRow(label: 'Supply ID', value: device.customSupplyId ?? '—'),
+        _InfoRow(label: 'Batch ID', value: device.assignedBatchId ?? '—'),
         if (device.measurement != null) ...[
           const SizedBox(height: 6),
           _InfoRow(
-            label: 'Weight unit',
-            value: device.measurement!.weightUnit,
+            label: 'Unit',
+            value: device.measurement!.weightUnitName,
           ),
           _InfoRow(
-            label: 'Unit weight',
-            value: '${device.measurement!.unitWeight}',
+            label: 'Net weight',
+            value:
+                '${device.measurement!.netWeight} ${device.measurement!.weightUnitAbbreviation}',
           ),
           _InfoRow(
             label: 'Tare weight',
-            value: '${device.measurement!.tareWeight}',
+            value:
+                '${device.measurement!.tareWeight} ${device.measurement!.weightUnitAbbreviation}',
           ),
+          if (device.measurement!.grossWeight != null)
+            _InfoRow(
+              label: 'Gross weight',
+              value:
+                  '${device.measurement!.grossWeight} ${device.measurement!.weightUnitAbbreviation}',
+            ),
         ],
       ],
     );

@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:restock/devices/application/device_facade_service.dart';
+import 'package:restock/devices/domain/entities/batch.dart';
 import 'package:restock/devices/domain/entities/device_measurement.dart';
 import 'package:restock/devices/presentation/utils/devices_theme.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_event.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_state.dart';
-import 'package:restock/resources/application/custom_supply_facade_service.dart';
-import 'package:restock/resources/domain/entities/custom_supply.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/widgets/restok_button.dart';
 
 class AssignBatchBottomSheet extends StatefulWidget {
   const AssignBatchBottomSheet({
     super.key,
-    required this.customSupplyFacadeService,
+    required this.deviceFacadeService,
   });
 
-  final CustomSupplyFacadeService customSupplyFacadeService;
+  final DeviceFacadeService deviceFacadeService;
 
   @override
   State<AssignBatchBottomSheet> createState() => _AssignBatchBottomSheetState();
@@ -27,33 +27,38 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
   final _unitWeightController = TextEditingController();
   final _tareWeightController = TextEditingController(text: '0');
 
-  List<CustomSupply> _supplies = [];
-  bool _loadingSupplies = true;
-  String? _selectedSupplyId;
-  String _selectedWeightUnit = 'g';
-  bool _isSubmitting = false;
-
+  List<Batch> _batches = [];
+  bool _loadingBatches = true;
+  Batch? _selectedBatch;
+  // (abbreviation, fullName, displayLabel)
   static const _weightUnits = [
-    ('g', 'Grams (g)'),
-    ('kg', 'Kilograms (kg)'),
-    ('l', 'Liters (l)'),
-    ('ml', 'Milliliters (ml)'),
-    ('unit', 'Units'),
+    ('g', 'grams', 'Grams (g)'),
+    ('kg', 'kilograms', 'Kilograms (kg)'),
+    ('l', 'liters', 'Liters (l)'),
+    ('ml', 'milliliters', 'Milliliters (ml)'),
+    ('unit', 'units', 'Units'),
   ];
+
+  String _selectedWeightUnitAbbreviation = 'g';
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    _loadSupplies();
+    _loadBatches();
   }
 
-  Future<void> _loadSupplies() async {
+  Future<void> _loadBatches() async {
     try {
-      final supplies =
-          await widget.customSupplyFacadeService.getCustomSuppliesByBranchId();
-      if (mounted) setState(() { _supplies = supplies; _loadingSupplies = false; });
+      final batches = await widget.deviceFacadeService.getBatchesForAssignment();
+      if (mounted) {
+        setState(() {
+          _batches = batches;
+          _loadingBatches = false;
+        });
+      }
     } catch (_) {
-      if (mounted) setState(() => _loadingSupplies = false);
+      if (mounted) setState(() => _loadingBatches = false);
     }
   }
 
@@ -66,16 +71,25 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
 
   void _submit(BuildContext ctx) {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedSupplyId == null) return;
+    if (_selectedBatch == null) return;
 
     setState(() => _isSubmitting = true);
+    final unit = _weightUnits.firstWhere(
+      (u) => u.$1 == _selectedWeightUnitAbbreviation,
+      orElse: () => _weightUnits.first,
+    );
+    final batch = _selectedBatch!;
     ctx.read<DeviceDetailBloc>().add(
       BatchAssigned(
-        customSupplyId: _selectedSupplyId!,
+        batchId: batch.id,
+        customSupplyId: batch.customSupplyId,
+        minStock: batch.minimumStock ?? 0.0,
+        maxStock: batch.maximumStock ?? batch.currentStock,
         measurement: DeviceMeasurement(
-          weightUnit: _selectedWeightUnit,
-          unitWeight: double.parse(_unitWeightController.text.trim()),
+          netWeight: double.parse(_unitWeightController.text.trim()),
           tareWeight: double.parse(_tareWeightController.text.trim()),
+          weightUnitName: unit.$2,
+          weightUnitAbbreviation: unit.$1,
         ),
       ),
     );
@@ -142,7 +156,7 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
                   ),
                 ),
                 Expanded(
-                  child: _loadingSupplies
+                  child: _loadingBatches
                       ? const Center(
                           child: CircularProgressIndicator(
                             color: DevicesTheme.greenPrimary,
@@ -157,50 +171,51 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _label('Supply'),
+                              _label('Batch'),
                               const SizedBox(height: 6),
-                              DropdownButtonFormField<String>(
-                                initialValue: _selectedSupplyId,
+                              DropdownButtonFormField<Batch>(
+                                initialValue: _selectedBatch,
                                 hint: const Text(
-                                  'Select a supply',
+                                  'Select a batch',
                                   style: TextStyle(
                                     color: DevicesTheme.textSecondary,
                                   ),
                                 ),
                                 decoration: _inputDecoration(),
-                                items: _supplies
+                                items: _batches
                                     .map(
-                                      (s) => DropdownMenuItem(
-                                        value: s.customSupplyId,
-                                        child: Text(s.name),
+                                      (b) => DropdownMenuItem(
+                                        value: b,
+                                        child: Text(b.displayLabel),
                                       ),
                                     )
                                     .toList(),
                                 onChanged: (v) =>
-                                    setState(() => _selectedSupplyId = v),
+                                    setState(() => _selectedBatch = v),
                                 validator: (v) =>
-                                    v == null ? 'Select a supply' : null,
+                                    v == null ? 'Select a batch' : null,
                               ),
                               const SizedBox(height: 16),
                               _label('Weight Unit'),
                               const SizedBox(height: 6),
                               DropdownButtonFormField<String>(
-                                initialValue: _selectedWeightUnit,
+                                initialValue: _selectedWeightUnitAbbreviation,
                                 decoration: _inputDecoration(),
                                 items: _weightUnits
                                     .map(
                                       (u) => DropdownMenuItem(
                                         value: u.$1,
-                                        child: Text(u.$2),
+                                        child: Text(u.$3),
                                       ),
                                     )
                                     .toList(),
                                 onChanged: (v) => setState(
-                                  () => _selectedWeightUnit = v ?? 'g',
+                                  () => _selectedWeightUnitAbbreviation =
+                                      v ?? 'g',
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              _label('Unit Weight'),
+                              _label('Net Weight'),
                               const SizedBox(height: 6),
                               TextFormField(
                                 controller: _unitWeightController,
@@ -208,12 +223,10 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
                                     const TextInputType.numberWithOptions(
                                   decimal: true,
                                 ),
-                                decoration: _inputDecoration(
-                                  hint: 'e.g. 100',
-                                ),
+                                decoration: _inputDecoration(hint: 'e.g. 100'),
                                 validator: (v) {
                                   if (v == null || v.trim().isEmpty) {
-                                    return 'Unit weight is required';
+                                    return 'Net weight is required';
                                   }
                                   if (double.tryParse(v.trim()) == null) {
                                     return 'Enter a valid number';
@@ -257,10 +270,9 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
                   child: RestockButton(
                     text: 'Save Assignment',
                     isLoading: _isSubmitting,
-                    onPressed:
-                        (_isSubmitting || _selectedSupplyId == null)
-                            ? null
-                            : () => _submit(context),
+                    onPressed: (_isSubmitting || _selectedBatch == null)
+                        ? null
+                        : () => _submit(context),
                   ),
                 ),
               ],

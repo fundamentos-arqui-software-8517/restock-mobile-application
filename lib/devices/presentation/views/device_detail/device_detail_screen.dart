@@ -10,8 +10,8 @@ import 'package:restock/devices/presentation/views/device_detail/widgets/assigne
 import 'package:restock/devices/presentation/views/device_detail/widgets/assign_batch_bottom_sheet.dart';
 import 'package:restock/devices/presentation/views/device_detail/widgets/danger_zone_card.dart';
 import 'package:restock/devices/presentation/views/device_detail/widgets/unlink_confirm_bottom_sheet.dart';
+import 'package:restock/devices/application/device_facade_service.dart';
 import 'package:restock/injections.dart';
-import 'package:restock/resources/application/custom_supply_facade_service.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 
 class DeviceDetailScreen extends StatelessWidget {
@@ -211,8 +211,7 @@ class DeviceDetailScreen extends StatelessWidget {
       builder: (_) => BlocProvider.value(
         value: context.read<DeviceDetailBloc>(),
         child: AssignBatchBottomSheet(
-          customSupplyFacadeService:
-              serviceLocator<CustomSupplyFacadeService>(),
+          deviceFacadeService: serviceLocator<DeviceFacadeService>(),
         ),
       ),
     );
