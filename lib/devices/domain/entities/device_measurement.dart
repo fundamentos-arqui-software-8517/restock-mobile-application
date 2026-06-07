@@ -1,26 +1,35 @@
 class DeviceMeasurement {
   const DeviceMeasurement({
-    required this.weightUnit,
-    required this.unitWeight,
+    required this.netWeight,
     required this.tareWeight,
+    required this.weightUnitName,
+    required this.weightUnitAbbreviation,
+    this.grossWeight,
     this.calibrationDate,
   });
 
-  final String weightUnit;
-  final double unitWeight;
+  final double netWeight;
   final double tareWeight;
-  final DateTime? calibrationDate;
+  final double? grossWeight;
+  final String weightUnitName;
+  final String weightUnitAbbreviation;
+  final String? calibrationDate; // "YYYY-MM-DD"
 
   DeviceMeasurement copyWith({
-    String? weightUnit,
-    double? unitWeight,
+    double? netWeight,
     double? tareWeight,
-    DateTime? calibrationDate,
+    double? grossWeight,
+    String? weightUnitName,
+    String? weightUnitAbbreviation,
+    String? calibrationDate,
   }) {
     return DeviceMeasurement(
-      weightUnit: weightUnit ?? this.weightUnit,
-      unitWeight: unitWeight ?? this.unitWeight,
+      netWeight: netWeight ?? this.netWeight,
       tareWeight: tareWeight ?? this.tareWeight,
+      grossWeight: grossWeight ?? this.grossWeight,
+      weightUnitName: weightUnitName ?? this.weightUnitName,
+      weightUnitAbbreviation:
+          weightUnitAbbreviation ?? this.weightUnitAbbreviation,
       calibrationDate: calibrationDate ?? this.calibrationDate,
     );
   }

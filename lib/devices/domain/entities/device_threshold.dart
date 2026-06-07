@@ -5,6 +5,7 @@ class DeviceThreshold {
     required this.minStock,
     required this.maxStock,
     required this.anomalyThreshold,
+    this.customSupplyId,
     this.minTemperature,
     this.maxTemperature,
     this.minHumidity,
@@ -13,6 +14,7 @@ class DeviceThreshold {
 
   final String thresholdId;
   final String accountId;
+  final String? customSupplyId;
   final double minStock;
   final double maxStock;
   final double anomalyThreshold;

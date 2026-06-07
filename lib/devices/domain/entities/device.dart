@@ -11,8 +11,8 @@ class Device {
     required this.status,
     this.specifications,
     this.branchId,
-    this.customSupplyId,
-    this.thresholdId,
+    this.assignedBatchId,
+    this.supplyThresholdId,
     this.measurement,
   });
 
@@ -23,8 +23,8 @@ class Device {
   final DeviceStatus status;
   final DeviceSpecifications? specifications;
   final String? branchId;
-  final String? customSupplyId;
-  final String? thresholdId;
+  final String? assignedBatchId;
+  final String? supplyThresholdId;
   final DeviceMeasurement? measurement;
 
   String? get firmwareVersion => specifications?.firmwareVersion;
@@ -32,5 +32,5 @@ class Device {
   bool get isOnboardingComplete =>
       status == DeviceStatus.configured || status == DeviceStatus.active;
 
-  bool get hasBatch => customSupplyId != null;
+  bool get hasBatch => assignedBatchId != null;
 }
