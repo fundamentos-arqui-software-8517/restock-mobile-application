@@ -7,6 +7,7 @@ class DeviceThresholdResponseModel {
     required this.minStock,
     required this.maxStock,
     required this.anomalyThreshold,
+    this.customSupplyId,
     this.minTemperature,
     this.maxTemperature,
     this.minHumidity,
@@ -15,6 +16,7 @@ class DeviceThresholdResponseModel {
 
   final String thresholdId;
   final String accountId;
+  final String? customSupplyId;
   final double minStock;
   final double maxStock;
   final double anomalyThreshold;
@@ -32,6 +34,7 @@ class DeviceThresholdResponseModel {
     return DeviceThresholdResponseModel(
       thresholdId: value('id', fallback: value('thresholdId')),
       accountId: value('accountId'),
+      customSupplyId: json['customSupplyId']?.toString(),
       minStock: (json['minStock'] as num?)?.toDouble() ?? 0.0,
       maxStock: (json['maxStock'] as num?)?.toDouble() ?? 0.0,
       anomalyThreshold: (json['anomalyThreshold'] as num?)?.toDouble() ?? 0.0,
@@ -46,6 +49,7 @@ class DeviceThresholdResponseModel {
     return DeviceThreshold(
       thresholdId: thresholdId,
       accountId: accountId,
+      customSupplyId: customSupplyId,
       minStock: minStock,
       maxStock: maxStock,
       anomalyThreshold: anomalyThreshold,

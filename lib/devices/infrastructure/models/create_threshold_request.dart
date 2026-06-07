@@ -3,6 +3,7 @@ import 'package:restock/devices/domain/entities/create_threshold_command.dart';
 class CreateThresholdRequest {
   const CreateThresholdRequest({
     required this.accountId,
+    required this.customSupplyId,
     required this.minStock,
     required this.maxStock,
     required this.anomalyThreshold,
@@ -15,6 +16,7 @@ class CreateThresholdRequest {
   factory CreateThresholdRequest.fromCommand(CreateThresholdCommand cmd) {
     return CreateThresholdRequest(
       accountId: cmd.accountId,
+      customSupplyId: cmd.customSupplyId,
       minStock: cmd.minStock,
       maxStock: cmd.maxStock,
       anomalyThreshold: cmd.anomalyThreshold,
@@ -26,6 +28,7 @@ class CreateThresholdRequest {
   }
 
   final String accountId;
+  final String customSupplyId;
   final double minStock;
   final double maxStock;
   final double anomalyThreshold;
@@ -37,6 +40,7 @@ class CreateThresholdRequest {
   Map<String, dynamic> toJson() {
     return {
       'accountId': accountId,
+      'customSupplyId': customSupplyId,
       'minStock': minStock,
       'maxStock': maxStock,
       'anomalyThreshold': anomalyThreshold,

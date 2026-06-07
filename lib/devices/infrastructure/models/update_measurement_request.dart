@@ -1,21 +1,26 @@
 class UpdateMeasurementRequest {
   const UpdateMeasurementRequest({
-    required this.weightUnit,
-    required this.unitWeight,
+    required this.netWeight,
     required this.tareWeight,
-    this.calibrationDate,
+    required this.grossWeight,
+    required this.calibrationDate,
+    required this.weightUnitName,
+    required this.weightUnitAbbreviation,
   });
 
-  final String weightUnit;
-  final double unitWeight;
+  final double netWeight;
   final double tareWeight;
-  final DateTime? calibrationDate;
+  final double grossWeight;
+  final String calibrationDate;
+  final String weightUnitName;
+  final String weightUnitAbbreviation;
 
   Map<String, dynamic> toJson() => {
-        'weightUnit': weightUnit,
-        'unitWeight': unitWeight,
+        'netWeight': netWeight,
         'tareWeight': tareWeight,
-        if (calibrationDate != null)
-          'calibrationDate': calibrationDate!.toIso8601String(),
+        'grossWeight': grossWeight,
+        'calibrationDate': calibrationDate,
+        'weightUnitName': weightUnitName,
+        'weightUnitAbbreviation': weightUnitAbbreviation,
       };
 }

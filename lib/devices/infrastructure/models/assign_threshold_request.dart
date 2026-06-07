@@ -8,5 +8,5 @@ class AssignThresholdRequest {
 
   final String thresholdId;
 
-  Map<String, dynamic> toJson() => {'thresholdId': thresholdId};
+  Map<String, dynamic> toJson() => {'supplyThresholdId': thresholdId};
 }

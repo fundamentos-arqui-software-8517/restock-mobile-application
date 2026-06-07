@@ -12,8 +12,8 @@ class DeviceResponseModel {
     required this.status,
     this.specifications,
     this.branchId,
-    this.customSupplyId,
-    this.thresholdId,
+    this.assignedBatchId,
+    this.supplyThresholdId,
     this.measurement,
   });
 
@@ -24,34 +24,51 @@ class DeviceResponseModel {
   final String status;
   final DeviceSpecifications? specifications;
   final String? branchId;
-  final String? customSupplyId;
-  final String? thresholdId;
+  final String? assignedBatchId;
+  final String? supplyThresholdId;
   final DeviceMeasurement? measurement;
 
   factory DeviceResponseModel.fromJson(Map<String, dynamic> json) {
     String value(String key, {String fallback = ''}) =>
         json[key]?.toString() ?? fallback;
 
+    // Back returns specs flat (manufacturer, model, firmwareVersion)
     DeviceSpecifications? parseSpecifications() {
-      final specs = json['specifications'];
-      if (specs is! Map<String, dynamic>) return null;
+      final manufacturer = json['manufacturer']?.toString();
+      final model = json['model']?.toString();
+      final firmware = json['firmwareVersion']?.toString();
+      if (manufacturer == null && model == null && firmware == null) {
+        // Fallback: try nested 'specifications' object (older response shape)
+        final specs = json['specifications'];
+        if (specs is Map<String, dynamic>) {
+          return DeviceSpecifications(
+            manufacturer: specs['manufacturer']?.toString() ?? '',
+            model: specs['model']?.toString() ?? '',
+            firmwareVersion: specs['firmwareVersion']?.toString() ?? '',
+          );
+        }
+        return null;
+      }
       return DeviceSpecifications(
-        manufacturer: specs['manufacturer']?.toString() ?? '',
-        model: specs['model']?.toString() ?? '',
-        firmwareVersion: specs['firmwareVersion']?.toString() ?? '',
+        manufacturer: manufacturer ?? '',
+        model: model ?? '',
+        firmwareVersion: firmware ?? '',
       );
     }
 
+    // Back returns measurement fields flat (not nested)
     DeviceMeasurement? parseMeasurement() {
-      final m = json['measurement'];
-      if (m is! Map<String, dynamic>) return null;
+      final netWeight = (json['netWeight'] as num?)?.toDouble();
+      if (netWeight == null) return null;
       return DeviceMeasurement(
-        weightUnit: m['weightUnit']?.toString() ?? 'g',
-        unitWeight: (m['unitWeight'] as num?)?.toDouble() ?? 0.0,
-        tareWeight: (m['tareWeight'] as num?)?.toDouble() ?? 0.0,
-        calibrationDate: m['calibrationDate'] != null
-            ? DateTime.tryParse(m['calibrationDate'].toString())
-            : null,
+        netWeight: netWeight,
+        tareWeight: (json['tareWeight'] as num?)?.toDouble() ?? 0.0,
+        grossWeight: (json['grossWeight'] as num?)?.toDouble(),
+        // response uses 'weightUnit'; request uses 'weightUnitName'
+        weightUnitName: json['weightUnit']?.toString() ?? '',
+        weightUnitAbbreviation:
+            json['weightUnitAbbreviation']?.toString() ?? '',
+        calibrationDate: json['calibrationDate']?.toString(),
       );
     }
 
@@ -63,8 +80,8 @@ class DeviceResponseModel {
       status: value('status', fallback: 'REGISTERED'),
       specifications: parseSpecifications(),
       branchId: json['branchId']?.toString(),
-      customSupplyId: json['customSupplyId']?.toString(),
-      thresholdId: json['thresholdId']?.toString(),
+      assignedBatchId: json['assignedBatchId']?.toString(),
+      supplyThresholdId: json['supplyThresholdId']?.toString(),
       measurement: parseMeasurement(),
     );
   }
@@ -78,8 +95,8 @@ class DeviceResponseModel {
       status: DeviceStatus.fromApi(status),
       specifications: specifications,
       branchId: branchId,
-      customSupplyId: customSupplyId,
-      thresholdId: thresholdId,
+      assignedBatchId: assignedBatchId,
+      supplyThresholdId: supplyThresholdId,
       measurement: measurement,
     );
   }

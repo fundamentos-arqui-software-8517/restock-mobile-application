@@ -1,7 +1,7 @@
 class AssignBatchRequest {
-  const AssignBatchRequest({required this.customSupplyId});
+  const AssignBatchRequest({required this.batchId});
 
-  final String customSupplyId;
+  final String batchId;
 
-  Map<String, dynamic> toJson() => {'customSupplyId': customSupplyId};
+  Map<String, dynamic> toJson() => {'batchId': batchId};
 }
