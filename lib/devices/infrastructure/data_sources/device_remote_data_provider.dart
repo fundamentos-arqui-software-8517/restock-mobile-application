@@ -161,7 +161,7 @@ class DeviceRemoteDataProvider {
       final response = await http.put(
         uri,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'thresholdId': thresholdId}),
+        body: jsonEncode({'supplyThresholdId': thresholdId}),
       );
       if (response.statusCode == HttpStatus.ok) {
         return DeviceResponseModel.fromJson(
