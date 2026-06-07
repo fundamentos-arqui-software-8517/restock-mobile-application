@@ -18,6 +18,7 @@ class DeviceThresholdFacadeService {
 
   Future<DeviceThreshold> createAndAssign({
     required String deviceId,
+    required String customSupplyId,
     required double minStock,
     required double maxStock,
     required double anomalyThreshold,
@@ -34,6 +35,7 @@ class DeviceThresholdFacadeService {
       final threshold = await thresholdRepository.createThreshold(
         CreateThresholdCommand(
           accountId: accountId,
+          customSupplyId: customSupplyId,
           minStock: minStock,
           maxStock: maxStock,
           anomalyThreshold: anomalyThreshold,
