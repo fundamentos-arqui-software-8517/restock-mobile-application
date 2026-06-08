@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
+import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_event.dart';
+import 'package:restock/devices/presentation/views/device_detail/device_detail_screen.dart';
+import 'package:restock/devices/presentation/views/device_list/bloc/device_list_bloc.dart';
+import 'package:restock/devices/presentation/views/device_list/bloc/device_list_event.dart';
+import 'package:restock/devices/presentation/views/device_list/device_list_screen.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bloc.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/pages/sign_in_form_screen.dart';
 import 'package:restock/injections.dart';
@@ -70,7 +76,24 @@ GoRouter buildRouter(AuthStatusNotifier authNotifier) => GoRouter(
           routes: [
             GoRoute(
               path: '/devices',
-              builder: (_, _) => const SizedBox.shrink(),
+              builder: (context, state) => BlocProvider<DeviceListBloc>(
+                create: (_) => serviceLocator<DeviceListBloc>()
+                  ..add(const GetDevices()),
+                child: const DeviceListScreen(),
+              ),
+              routes: [
+                GoRoute(
+                  path: ':deviceId',
+                  builder: (context, state) {
+                    final deviceId = state.pathParameters['deviceId']!;
+                    return BlocProvider<DeviceDetailBloc>(
+                      create: (_) => serviceLocator<DeviceDetailBloc>()
+                        ..add(DeviceDetailFetched(deviceId)),
+                      child: const DeviceDetailScreen(),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

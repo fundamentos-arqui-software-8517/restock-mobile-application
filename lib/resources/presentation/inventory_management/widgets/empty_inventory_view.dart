@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class EmptyInventoryView extends StatelessWidget {
-  const EmptyInventoryView({super.key});
+  const EmptyInventoryView({super.key, this.onAddSupply});
+
+  final VoidCallback? onAddSupply;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +70,7 @@ class EmptyInventoryView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {},
+              onPressed: onAddSupply,
               icon: const Icon(Icons.add, color: Colors.white),
               label: const Text(
                 'Add First Supply',

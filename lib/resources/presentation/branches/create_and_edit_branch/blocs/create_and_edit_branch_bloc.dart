@@ -18,6 +18,7 @@ class CreateAndEditBranchBloc
           city: branch?.address.city ?? '',
           country: branch?.address.country ?? '',
           description: branch?.description ?? '',
+          branchStatus: branch?.status ?? 'active',
         ),
       ) {
     on<CreateAndEditBranchNameChanged>(_onNameChanged);
@@ -28,10 +29,11 @@ class CreateAndEditBranchBloc
     on<CreateAndEditBranchDescriptionChanged>(_onDescriptionChanged);
     on<CreateAndEditBranchImageChanged>(_onImageChanged);
     on<CreateAndEditBranchSubmitted>(_onSubmitted);
+    on<CreateAndEditBranchStatusChanged>(_onStatusChanged);
   }
 
   final BranchFacadeService branchFacadeService;
-   
+
   /// Handler for the name change event. It updates the state with the new name.
   void _onNameChanged(
     CreateAndEditBranchNameChanged event,
@@ -61,7 +63,7 @@ class CreateAndEditBranchBloc
     CreateAndEditBranchCountryChanged event,
     Emitter<CreateAndEditBranchState> emit,
   ) => emit(state.copyWith(country: event.country));
-  
+
   /// Handler for the description change event. It updates the state with the new description.
   void _onDescriptionChanged(
     CreateAndEditBranchDescriptionChanged event,
@@ -79,6 +81,7 @@ class CreateAndEditBranchBloc
     CreateAndEditBranchSubmitted event,
     Emitter<CreateAndEditBranchState> emit,
   ) async {
+    if (state.status == Status.loading) return;
     if (!state.isValid) return;
 
     emit(state.copyWith(status: Status.loading));
@@ -110,4 +113,12 @@ class CreateAndEditBranchBloc
       emit(state.copyWith(status: Status.failure, errorMessage: e.toString()));
     }
   }
+
+  /// Handler for the branch status change event. It updates the state with the new branch status based on whether the switch is active or not.
+  void _onStatusChanged(
+    CreateAndEditBranchStatusChanged event,
+    Emitter<CreateAndEditBranchState> emit,
+  ) => emit(
+    state.copyWith(branchStatus: event.isActive ? 'active' : 'inactive'),
+  );
 }

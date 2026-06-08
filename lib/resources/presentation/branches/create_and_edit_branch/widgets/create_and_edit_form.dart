@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
+import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_bloc.dart';
+import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_event.dart';
+import 'package:restock/resources/presentation/branches/branch_status/bloc/branch_status_state.dart';
+import 'package:restock/resources/presentation/branches/branch_status/widgets/branch_status_toggle.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_event.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_state.dart';
@@ -42,6 +46,56 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
   final _countryController = TextEditingController();
   final _descriptionController = TextEditingController();
 
+  void _dispatch(CreateAndEditBranchEvent event) =>
+      context.read<CreateAndEditBranchBloc>().add(event);
+
+  Future<bool> _showDeactivateConfirmDialog() async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text(
+              'Deactivate Branch?',
+              style: TextStyle(
+                color: Color(0xFF0D1B2A),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            content: const Text(
+              'This branch will no longer be visible to managers. You can reactivate it at any time.',
+              style: TextStyle(
+                color: Color(0xFF5A6472),
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Color(0xFF5A6472)),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text(
+                  'Deactivate',
+                  style: TextStyle(
+                    color: Color(0xFFD32F2F),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -69,9 +123,6 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
     }
   }
 
-  void _dispatch(CreateAndEditBranchEvent event) =>
-      context.read<CreateAndEditBranchBloc>().add(event);
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<CreateAndEditBranchBloc, CreateAndEditBranchState>(
@@ -85,125 +136,243 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
           );
         }
       },
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.65,
-        child: SafeArea(
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDDDDDD),
-                  borderRadius: BorderRadius.circular(2),
-                ),
+      child: BlocListener<UpdateBranchStatusBloc, UpdateBranchStatusState>(
+        listenWhen: (prev, curr) => prev.status != curr.status,
+        listener: (context, state) {
+          if (state.status == Status.success) {
+            final branchStatus = context
+                .read<CreateAndEditBranchBloc>()
+                .state
+                .branchStatus;
+            Navigator.of(context).pop(branchStatus);
+          } else if (state.status == Status.failure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage ?? 'Failed to update status'),
               ),
-              const SizedBox(height: 20),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child:
-                      BlocBuilder<
-                        CreateAndEditBranchBloc,
-                        CreateAndEditBranchState
-                      >(
-                        buildWhen: (prev, curr) =>
-                            prev.isEditing != curr.isEditing,
-                        builder: (context, state) => Text(
-                          state.isEditing ? 'Edit Branch' : 'Create New Branch',
-                          style: const TextStyle(
-                            color: Color(0xFF0D1B2A),
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
-                      ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ImagePickerField(
-                        imageUrl: widget.branch?.imageUrl,
-                        onImagePicked: (xFile) =>
-                            _dispatch(CreateAndEditBranchImageChanged(xFile)),
-                      ),
-                      const SizedBox(height: 16),
-
-                      RestockTextField(
-                        controller: _nameController,
-                        hint: 'BRANCH NAME',
-                        onChanged: (v) =>
-                            _dispatch(CreateAndEditBranchNameChanged(v)),
-                      ),
-                      const SizedBox(height: 10),
-
-                      RestockTextField(
-                        controller: _addressController,
-                        hint: 'STREET ADDRESS',
-                        onChanged: (v) =>
-                            _dispatch(CreateAndEditBranchAddressChanged(v)),
-                      ),
-                      const SizedBox(height: 10),
-
-                      RestockTextField(
-                        controller: _stateOrRegionController,
-                        hint: 'STATE / REGION',
-                        onChanged: (v) => _dispatch(
-                          CreateAndEditBranchStateOrRegionChanged(v),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      RestockTextField(
-                        controller: _cityController,
-                        hint: 'CITY',
-                        onChanged: (v) =>
-                            _dispatch(CreateAndEditBranchCityChanged(v)),
-                      ),
-                      const SizedBox(height: 10),
-
-                      RestockTextField(
-                        controller: _countryController,
-                        hint: 'COUNTRY',
-                        onChanged: (v) =>
-                            _dispatch(CreateAndEditBranchCountryChanged(v)),
-                      ),
-                      const SizedBox(height: 10),
-
-                      RestockTextField(
-                        controller: _descriptionController,
-                        hint: 'DESCRIPTION',
-                        maxLines: 3,
-                        onChanged: (v) =>
-                            _dispatch(CreateAndEditBranchDescriptionChanged(v)),
-                      ),
-                      const SizedBox(height: 24),
-
-                      RestockButton(
-                        text: widget.branch != null
-                            ? 'Save Changes'
-                            : 'Save Branch',
-                        onPressed: () => context
-                            .read<CreateAndEditBranchBloc>()
-                            .add(const CreateAndEditBranchSubmitted()),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+            );
+          }
+        },
+        child: DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.65,
+          minChildSize: 0.45,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) => SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDDDDDD),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child:
+                        BlocBuilder<
+                          CreateAndEditBranchBloc,
+                          CreateAndEditBranchState
+                        >(
+                          buildWhen: (prev, curr) =>
+                              prev.isEditing != curr.isEditing,
+                          builder: (context, state) => Text(
+                            state.isEditing
+                                ? 'Edit Branch'
+                                : 'Create New Branch',
+                            style: const TextStyle(
+                              color: Color(0xFF0D1B2A),
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                        ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child:
+                        BlocBuilder<
+                          CreateAndEditBranchBloc,
+                          CreateAndEditBranchState
+                        >(
+                          buildWhen: (prev, curr) =>
+                              prev.isEditing != curr.isEditing ||
+                              prev.branchStatus != curr.branchStatus ||
+                              prev.status != curr.status,
+                          builder: (context, state) {
+                            final isActive = state.branchStatus == 'active';
+                            final isEditing = state.isEditing;
+                            final isLoading = state.status == Status.loading;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ImagePickerField(
+                                  imageUrl: widget.branch?.imageUrl,
+                                  enabled: isActive && !isLoading,
+                                  onImagePicked: isActive && !isLoading
+                                      ? (xFile) => _dispatch(
+                                          CreateAndEditBranchImageChanged(
+                                            xFile,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 16),
+
+                                RestockTextField(
+                                  controller: _nameController,
+                                  hint: 'BRANCH NAME',
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
+                                      ? (v) => _dispatch(
+                                          CreateAndEditBranchNameChanged(v),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 10),
+
+                                RestockTextField(
+                                  controller: _addressController,
+                                  hint: 'STREET ADDRESS',
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
+                                      ? (v) => _dispatch(
+                                          CreateAndEditBranchAddressChanged(v),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 10),
+
+                                RestockTextField(
+                                  controller: _stateOrRegionController,
+                                  hint: 'STATE / REGION',
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
+                                      ? (v) => _dispatch(
+                                          CreateAndEditBranchStateOrRegionChanged(
+                                            v,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 10),
+
+                                RestockTextField(
+                                  controller: _cityController,
+                                  hint: 'CITY',
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
+                                      ? (v) => _dispatch(
+                                          CreateAndEditBranchCityChanged(v),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 10),
+
+                                RestockTextField(
+                                  controller: _countryController,
+                                  hint: 'COUNTRY',
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
+                                      ? (v) => _dispatch(
+                                          CreateAndEditBranchCountryChanged(v),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 10),
+
+                                RestockTextField(
+                                  controller: _descriptionController,
+                                  hint: 'DESCRIPTION',
+                                  maxLines: 3,
+                                  enabled: isActive && !isLoading,
+                                  onChanged: isActive && !isLoading
+                                      ? (v) => _dispatch(
+                                          CreateAndEditBranchDescriptionChanged(
+                                            v,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 24),
+
+                                if (isEditing) ...[
+                                  BlocBuilder<
+                                    UpdateBranchStatusBloc,
+                                    UpdateBranchStatusState
+                                  >(
+                                    builder: (context, statusState) {
+                                      return BranchStatusToggle(
+                                        isActive: isActive,
+                                        isLoading:
+                                            statusState.status ==
+                                            Status.loading,
+                                        onChanged: (value) async {
+                                          if (!value) {
+                                            final confirm =
+                                                await _showDeactivateConfirmDialog();
+                                            if (!confirm) return;
+                                          }
+                                          _dispatch(
+                                            CreateAndEditBranchStatusChanged(
+                                              value,
+                                            ),
+                                          );
+                                          if (!context.mounted) return;
+                                          context
+                                              .read<UpdateBranchStatusBloc>()
+                                              .add(
+                                                UpdateBranchStatusSubmitted(
+                                                  branchId: state.branchId!,
+                                                  status: value
+                                                      ? 'active'
+                                                      : 'inactive',
+                                                ),
+                                              );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
+
+                                RestockButton(
+                                  text: isLoading
+                                      ? isEditing
+                                            ? 'Saving...'
+                                            : 'Creating...'
+                                      : isEditing
+                                      ? 'Save Changes'
+                                      : 'Save Branch',
+                                  isLoading: isLoading,
+                                  enabled: isActive && !isLoading,
+                                  onPressed: isActive && !isLoading
+                                      ? () => _dispatch(
+                                          const CreateAndEditBranchSubmitted(),
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(height: 24),
+                              ],
+                            );
+                          },
+                        ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

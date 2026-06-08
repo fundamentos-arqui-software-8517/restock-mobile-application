@@ -4,17 +4,19 @@ class RestockTextField extends StatelessWidget {
   const RestockTextField({
     required this.controller,
     required this.hint,
-    required this.onChanged,
+    this.onChanged,
     this.keyboardType,
     this.maxLines = 1,
+    this.enabled = true,
     super.key,
   });
 
   final TextEditingController controller;
   final String hint;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
   final int maxLines;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +25,11 @@ class RestockTextField extends StatelessWidget {
       onChanged: onChanged,
       keyboardType: keyboardType,
       maxLines: maxLines,
-      style: const TextStyle(
-        color: Color(0xFF0D1B2A),
+      enabled: enabled,
+      style: TextStyle(
+        color: enabled
+            ? const Color(0xFF0D1B2A)
+            : const Color(0xFF9AA5B4),
         fontSize: 13,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.4,
@@ -38,7 +43,9 @@ class RestockTextField extends StatelessWidget {
           letterSpacing: 1.0,
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: enabled
+            ? Colors.white
+            : const Color(0xFFF0F0F0),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
@@ -50,6 +57,10 @@ class RestockTextField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: Color(0xFF2D6A4F), width: 1.5),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFFEEEEEE), width: 1.2),
         ),
       ),
     );

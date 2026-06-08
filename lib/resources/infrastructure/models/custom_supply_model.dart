@@ -1,92 +1,90 @@
-import '../../domain/entities/custom_supply.dart';
+import 'package:restock/resources/domain/entities/custom_supply.dart';
+import 'package:restock/resources/infrastructure/models/supply_response_model.dart';
 
-/// A model class representing a custom supply response from the API.
+/// Response model for `/api/v1/custom-supplies/{customSupplyId}`.
 class CustomSupplyResponseModel {
-
-  /// The unique identifier for the custom supply.
-  final String customSupplyId;
-
-  /// The identifier for the account associated with the custom supply.
-  final String accountId;
-
-  /// The name of the custom supply.
-  final String name;
-
-  /// The category of the custom supply.
-  final String category;
-
-  /// The unit price of the custom supply.
-  final double unitPrice;
-
-  /// The unit of measure for the custom supply.
-  final double unitOfMeasure;
-
-  /// The URL of the image associated with the custom supply.
-  final String imageUrl;
-
-  /// The description of the custom supply.
-  final String description;
-
-  /// The minimum stock level for the custom supply.
-  final double minStock;
-
-  /// The maximum stock level for the custom supply.
-  final double maxStock;
-
-  /// The creation date of the custom supply.
-  final String createdAt;
-
-  /// Constructs a [CustomSupplyResponseModel] with the given parameters.
   const CustomSupplyResponseModel({
     required this.customSupplyId,
-    required this.accountId,
     required this.name,
-    required this.category,
-    required this.unitPrice,
-    required this.unitOfMeasure,
-    required this.imageUrl,
     required this.description,
-    required this.minStock,
-    required this.maxStock,
-    required this.createdAt,
+    required this.unitPriceAmount,
+    required this.unitPriceCurrencyCode,
+    required this.minimumStock,
+    required this.maximumStock,
+    required this.unitMeasurement,
+    required this.unitMeasurementAbbreviation,
+    required this.pictureUrl,
+    required this.picturePublicId,
+    required this.accountId,
+    required this.supply,
   });
 
-  /// Creates a [CustomSupplyResponseModel] from a JSON map.
-  /// [json] The JSON map containing the custom supply data.
-  /// Returns a [CustomSupplyResponseModel] instance created from the JSON data.
-  factory CustomSupplyResponseModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  final String customSupplyId;
+  final String name;
+  final String description;
+  final String unitPriceAmount;
+  final String unitPriceCurrencyCode;
+  final double minimumStock;
+  final double maximumStock;
+  final String unitMeasurement;
+  final String unitMeasurementAbbreviation;
+  final String pictureUrl;
+  final String picturePublicId;
+  final String accountId;
+  final SupplyResponseModel supply;
+
+  factory CustomSupplyResponseModel.fromJson(Map<String, dynamic> json) {
+    final supplyJson = json['supply'];
+
+    String value(String key, {String fallback = ''}) {
+      return json[key]?.toString() ?? fallback;
+    }
+
+    double doubleValue(Object? value) {
+      if (value is num) return value.toDouble();
+      return double.tryParse(value?.toString() ?? '') ?? 0;
+    }
+
     return CustomSupplyResponseModel(
-      customSupplyId: json['id'],
-      accountId: json['accountId'],
-      name: json['name'],
-      category: json['category'],
-      unitPrice: (json['unitPrice'] as num).toDouble(),
-      unitOfMeasure: (json['unitOfMeasure'] as num).toDouble(),
-      imageUrl: json['imageUrl'],
-      description: json['description'],
-      minStock: (json['minStock'] as num).toDouble(),
-      maxStock: (json['maxStock'] as num).toDouble(),
-      createdAt: json['createdAt'],
+      customSupplyId: value('id', fallback: value('_id')),
+      name: value('name'),
+      description: value('description'),
+      unitPriceAmount: value('unitPriceAmount'),
+      unitPriceCurrencyCode: value('unitPriceCurrencyCode'),
+      minimumStock: doubleValue(json['minimumStock']),
+      maximumStock: doubleValue(json['maximumStock']),
+      unitMeasurement: value('unitMeasurement'),
+      unitMeasurementAbbreviation: value('unitMeasurementAbbreviation'),
+      pictureUrl: value('pictureUrl'),
+      picturePublicId: value('picturePublicId'),
+      accountId: value('accountId'),
+      supply: supplyJson is Map<String, dynamic>
+          ? SupplyResponseModel.fromJson(supplyJson)
+          : const SupplyResponseModel(
+              supplyId: '',
+              name: '',
+              description: '',
+              category: '',
+              isPerishable: false,
+            ),
     );
   }
 
-  /// Converts this [CustomSupplyResponseModel] to a [CustomSupply] domain entity.
-  /// Returns a [CustomSupply] instance with the same data as this model.
   CustomSupply toDomain() {
     return CustomSupply(
       customSupplyId: customSupplyId,
-      accountId: accountId,
       name: name,
-      category: category,
-      unitPrice: unitPrice,
-      unitOfMeasure: unitOfMeasure,
-      imageUrl: imageUrl,
       description: description,
-      minStock: minStock,
-      maxStock: maxStock,
-      createdAt: createdAt,
+      unitPriceAmount: unitPriceAmount,
+      unitPriceCurrencyCode: unitPriceCurrencyCode,
+      minimumStock: minimumStock,
+      maximumStock: maximumStock,
+      unitMeasurement: unitMeasurement,
+      unitMeasurementAbbreviation: unitMeasurementAbbreviation,
+      pictureUrl: pictureUrl,
+      picturePublicId: picturePublicId,
+      accountId: accountId,
+      supply: supply.toDomain(),
     );
   }
 }
