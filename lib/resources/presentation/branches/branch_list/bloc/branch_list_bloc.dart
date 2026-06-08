@@ -1,18 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
+import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_event.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_state.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 
 /// Bloc for managing the state of the branch list.
-class BranchListBloc
-    extends Bloc<BranchListEvent, BranchListState> {
-
+class BranchListBloc extends Bloc<BranchListEvent, BranchListState> {
   /// Creates a new instance of [BranchListBloc].
   BranchListBloc({
     required this.branchFacadeService,
   }) : super(const BranchListState()) {
     on<GetBranches>(_onLoadBranches);
+    on<BranchStatusUpdated>(_onBranchStatusUpdated);
   }
 
   final BranchFacadeService branchFacadeService;
@@ -43,5 +43,30 @@ class BranchListBloc
         ),
       );
     }
+  }
+
+  void _onBranchStatusUpdated(
+    BranchStatusUpdated event,
+    Emitter<BranchListState> emit,
+  ) {
+    final updatedBranches = state.branches.map((branch) {
+      if (branch.branchId != event.branchId) return branch;
+
+      return Branch(
+        branchId: branch.branchId,
+        name: branch.name,
+        description: branch.description,
+        imageUrl: branch.imageUrl,
+        address: branch.address,
+        status: event.status.toLowerCase(),
+      );
+    }).toList();
+
+    emit(
+      state.copyWith(
+        status: Status.success,
+        branches: updatedBranches,
+      ),
+    );
   }
 }

@@ -18,11 +18,41 @@ class ApiConstants {
   // Resources endpoints
 
   /// Endpoints for custom supplies.
+  static final String customSupplies = 'custom-supplies';
+
   static final String customSupplyByBranchId =
       'branches/{branchId}/custom-supplies';
 
+  static String customSupplyById = 'custom-supplies/{customSupplyId}';
+
   // Endpoints for branches.
-  static final String branchesByAccountId = 'accounts/{accountId}/branches';
+  static final String branches = 'branches';
 
   static String branchById = 'branches/{branchId}';
+
+  static String branchStatus = 'branches/{branchId}/status';
+
+  // Endpoints for supplies.
+
+  static final String supplies = 'supplies';
+
+  static final String suppliesCategories = 'supplies/categories';
+
+  // Devices endpoints
+  static final String devices = 'devices';
+  static String deviceById = 'devices/{deviceId}';
+  static String deviceSpecifications = 'devices/{deviceId}/specifications';
+  static String deviceConfigBranch = 'devices/{deviceId}/configuration/branch';
+  static String deviceConfigBatch = 'devices/{deviceId}/configuration/batch';
+  static String deviceConfigThreshold = 'devices/{deviceId}/configuration/threshold';
+  static String deviceConfigMeasurement = 'devices/{deviceId}/configuration/measurement';
+  static String deviceStatus = 'devices/{deviceId}/status';
+  static String deviceWithdrawnStock = 'devices/{deviceId}/withdrawn-stock';
+
+  // Batches endpoints
+  static final String batches = 'batches';
+
+  // Device thresholds endpoints
+  static final String deviceThresholds = 'device-thresholds';
+  static String deviceThresholdById = 'device-thresholds/{thresholdId}';
 }

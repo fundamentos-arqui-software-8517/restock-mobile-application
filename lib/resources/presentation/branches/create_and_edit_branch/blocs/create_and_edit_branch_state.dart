@@ -13,6 +13,7 @@ class CreateAndEditBranchState {
     this.country = '',
     this.description = '',
     this.image,
+    this.branchStatus = 'active',
     this.errorMessage,
   });
 
@@ -25,12 +26,13 @@ class CreateAndEditBranchState {
   final String country;
   final String description;
   final XFile? image;
+  final String branchStatus;
   final String? errorMessage;
 
   /// Indicates whether the form is in editing mode (editing an existing branch) or creating mode (creating a new branch). It returns true if the [branchId] is not null, which means we are editing an existing branch.
   bool get isEditing => branchId != null;
 
-  /// Validates the form fields. It returns true if all required fields are not empty, which means the form is valid and can be submitted.
+  /// Validates the form fields to determine if the form can be submitted. It checks that all required fields (name, address, stateOrRegion, city, and country) are not empty. If any of these fields are empty, it returns false, indicating that the form is not valid for submission.
   bool get isValid =>
       name.isNotEmpty &&
       address.isNotEmpty &&
@@ -38,7 +40,7 @@ class CreateAndEditBranchState {
       city.isNotEmpty &&
       country.isNotEmpty;
 
-  /// Creates a copy of the current state with the given parameters. If a parameter is not provided, it will use the current value from the state. This method is used to update the state in an immutable way when handling events in the bloc.
+  /// Creates a copy of the current state with updated values. This method allows you to create a new instance of [CreateAndEditBranchState] with modified properties while keeping the unchanged properties the same. You can provide new values for any of the properties, and if a property is not provided, it will retain its current value from the existing state.
   CreateAndEditBranchState copyWith({
     Status? status,
     String? branchId,
@@ -49,6 +51,7 @@ class CreateAndEditBranchState {
     String? country,
     String? description,
     XFile? image,
+    String? branchStatus,
     String? errorMessage,
   }) {
     return CreateAndEditBranchState(
@@ -61,6 +64,7 @@ class CreateAndEditBranchState {
       country: country ?? this.country,
       description: description ?? this.description,
       image: image ?? this.image,
+      branchStatus: branchStatus ?? this.branchStatus,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

@@ -3,7 +3,6 @@ import '../../domain/entities/address.dart';
 
 /// A model class representing a branch response from the API.
 class BranchResponseModel {
-
   /// The unique identifier for the branch.
   final String branchId;
 
@@ -52,21 +51,23 @@ class BranchResponseModel {
   });
 
   /// Creates a [BranchResponseModel] from a JSON map.
-  factory BranchResponseModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory BranchResponseModel.fromJson(Map<String, dynamic> json) {
+    String value(String key, {String fallback = ''}) {
+      return json[key]?.toString() ?? fallback;
+    }
+
     return BranchResponseModel(
-      branchId: json['id'],
-      accountId: json['accountId'],
-      name: json['name'],
-      address: json['address'],
-      city: json['city'],
-      stateOrRegion: json['stateOrRegion'],
-      country: json['country'],
-      imageUrl: json['imageUrl'],
-      status: json['status'],
-      description: json['description'],
-      createdAt: json['createdAt'],
+      branchId: value('id', fallback: value('branchId')),
+      accountId: value('accountId'),
+      name: value('name'),
+      address: value('address'),
+      city: value('city'),
+      stateOrRegion: value('stateOrRegion', fallback: value('regionOrState')),
+      country: value('country'),
+      imageUrl: value('imageUrl'),
+      status: value('status', fallback: 'active').toLowerCase(),
+      description: value('description'),
+      createdAt: value('createdAt'),
     );
   }
 

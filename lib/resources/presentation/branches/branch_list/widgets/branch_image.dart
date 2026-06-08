@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:restock/shared/presentation/utils/ui/theme.dart';
+import 'package:restock/shared/presentation/widgets/network_aware_image.dart';
 
 /// A widget that displays an image for a branch, along with a status badge indicating whether the branch is active or inactive. The image is loaded from a URL, and if it fails to load, a placeholder icon is shown instead. The status badge is positioned in the top-right corner of the image and changes color based on the branch's status.
 class BranchImage extends StatelessWidget {
-  const BranchImage({
-    super.key,
-    required this.imageUrl,
-    required this.status,
-  });
+  const BranchImage({super.key, required this.imageUrl, required this.status});
 
   final String imageUrl;
   final String status;
@@ -33,16 +30,12 @@ class BranchImage extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.network(
-            imageUrl,
+          NetworkAwareImage(
+            imageUrl: imageUrl,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
+            placeholder: Container(
               color: const Color(0xFF1E2D40),
-              child: const Icon(
-                Icons.business,
-                color: textSecondary,
-                size: 48,
-              ),
+              child: const Icon(Icons.business, color: textSecondary, size: 48),
             ),
           ),
           Container(
@@ -58,8 +51,7 @@ class BranchImage extends StatelessWidget {
             top: 12,
             right: 12,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: _badgeColor,
                 borderRadius: BorderRadius.circular(6),

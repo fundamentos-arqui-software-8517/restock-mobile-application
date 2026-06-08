@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as pkg_http;
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
+import 'package:restock/resources/domain/entities/update_branch_status_command.dart';
 import 'package:restock/resources/infrastructure/models/branch_response_model.dart';
 import 'package:restock/resources/infrastructure/models/register_branch_request.dart';
 import 'package:restock/resources/infrastructure/models/update_branch_request.dart';
+import 'package:restock/resources/infrastructure/models/update_branch_status_request.dart';
 import 'package:restock/shared/infrastructure/constants/api_constants.dart';
 
 /// A data provider for fetching branch data from a remote API.
@@ -27,7 +28,8 @@ class BranchRemoteDataProvider {
   ) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branchesByAccountId.replaceAll('{accountId}', accountId)}',
+        '${ApiConstants.baseUrl}${ApiConstants.branches}'
+      ).replace(queryParameters: {'accountId': accountId}
       );
 
       final response = await http.get(uri);
@@ -51,8 +53,8 @@ class BranchRemoteDataProvider {
   ) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branchesByAccountId.replaceAll('{accountId}', accountId)}',
-      );
+        '${ApiConstants.baseUrl}${ApiConstants.branches}'
+      ).replace(queryParameters: {'accountId': accountId});
 
       final multipartRequest = await request.toMultipartRequest(uri, 'POST');
 
@@ -105,6 +107,25 @@ class BranchRemoteDataProvider {
         return BranchResponseModel.fromJson(jsonDecode(response.body));
       }
       throw Exception('Failed to load branch: ${response.statusCode}');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Updates the status of a branch with the given [UpdateBranchStatusCommand] and [branchId].
+  Future<void> updateBranchStatus(UpdateBranchStatusRequest command) async {
+    try {
+      final Uri uri = Uri.parse(
+        '${ApiConstants.baseUrl}${ApiConstants.branchStatus.replaceAll('{branchId}', command.branchId)}',
+      );
+      final response = await http.patch(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'status': command.status}),
+      );
+      if (response.statusCode == 204 || response.statusCode == 200) {
+        return;
+      }
     } catch (e) {
       rethrow;
     }
