@@ -3,13 +3,15 @@ import 'dart:io';
 
 import 'package:restock/devices/infrastructure/models/assign_batch_request.dart';
 import 'package:restock/devices/infrastructure/models/assign_branch_request.dart';
+import 'package:restock/devices/infrastructure/models/assign_threshold_request.dart';
 import 'package:restock/devices/infrastructure/models/device_response_model.dart';
 import 'package:restock/devices/infrastructure/models/register_device_request.dart';
 import 'package:restock/devices/infrastructure/models/update_measurement_request.dart';
 import 'package:restock/devices/infrastructure/models/update_specifications_request.dart';
 import 'package:restock/devices/infrastructure/models/update_status_request.dart';
+import 'package:restock/devices/infrastructure/repositories/constants/devices_api_constants.dart';
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
-import 'package:restock/shared/infrastructure/constants/api_constants.dart';
+import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
 
 class DeviceRemoteDataProvider {
   DeviceRemoteDataProvider({required this.http});
@@ -21,7 +23,7 @@ class DeviceRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.devices}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.devices}',
       ).replace(queryParameters: {'accountId': accountId});
       final response = await http.get(uri);
       if (response.statusCode == HttpStatus.ok) {
@@ -39,7 +41,7 @@ class DeviceRemoteDataProvider {
   Future<DeviceResponseModel> getDeviceById(String deviceId) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceById.replaceAll('{deviceId}', deviceId)}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceById.replaceAll('{deviceId}', deviceId)}',
       );
       final response = await http.get(uri);
       if (response.statusCode == HttpStatus.ok) {
@@ -59,7 +61,7 @@ class DeviceRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.devices}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.devices}',
       ).replace(queryParameters: {'accountId': accountId});
       final response = await http.post(
         uri,
@@ -84,7 +86,7 @@ class DeviceRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceSpecifications.replaceAll('{deviceId}', deviceId)}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceSpecifications.replaceAll('{deviceId}', deviceId)}',
       );
       final response = await http.put(
         uri,
@@ -96,7 +98,9 @@ class DeviceRemoteDataProvider {
           jsonDecode(response.body) as Map<String, dynamic>,
         );
       }
-      throw Exception('Failed to update specifications: ${response.statusCode}');
+      throw Exception(
+        'Failed to update specifications: ${response.statusCode}',
+      );
     } catch (e) {
       rethrow;
     }
@@ -108,7 +112,7 @@ class DeviceRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceConfigBranch.replaceAll('{deviceId}', deviceId)}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceConfigBranch.replaceAll('{deviceId}', deviceId)}',
       );
       final response = await http.put(
         uri,
@@ -132,7 +136,7 @@ class DeviceRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceConfigBatch.replaceAll('{deviceId}', deviceId)}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceConfigBatch.replaceAll('{deviceId}', deviceId)}',
       );
       final response = await http.put(
         uri,
@@ -152,18 +156,22 @@ class DeviceRemoteDataProvider {
 
   Future<DeviceResponseModel> assignThreshold(
     String deviceId,
-    String thresholdId,
+    AssignThresholdRequest request,
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceConfigThreshold.replaceAll('{deviceId}', deviceId)}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceConfigThreshold.replaceAll('{deviceId}', deviceId)}',
       );
       final response = await http.put(
         uri,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'supplyThresholdId': thresholdId}),
+        body: jsonEncode(request.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok) {
+      if (response.statusCode == HttpStatus.ok ||
+          response.statusCode == HttpStatus.noContent) {
+        if (response.body.isEmpty) {
+          return getDeviceById(deviceId);
+        }
         return DeviceResponseModel.fromJson(
           jsonDecode(response.body) as Map<String, dynamic>,
         );
@@ -180,7 +188,7 @@ class DeviceRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceConfigMeasurement.replaceAll('{deviceId}', deviceId)}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceConfigMeasurement.replaceAll('{deviceId}', deviceId)}',
       );
       final response = await http.put(
         uri,
@@ -204,7 +212,7 @@ class DeviceRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceStatus.replaceAll('{deviceId}', deviceId)}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceStatus.replaceAll('{deviceId}', deviceId)}',
       );
       final response = await http.patch(
         uri,

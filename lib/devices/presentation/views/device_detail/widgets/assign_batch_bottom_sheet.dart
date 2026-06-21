@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restock/devices/application/device_facade_service.dart';
-import 'package:restock/devices/domain/entities/batch.dart';
-import 'package:restock/devices/domain/entities/device_measurement.dart';
+import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/devices/presentation/utils/devices_theme.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_bloc.dart';
 import 'package:restock/devices/presentation/views/device_detail/bloc/device_detail_event.dart';
@@ -11,10 +10,7 @@ import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/widgets/restok_button.dart';
 
 class AssignBatchBottomSheet extends StatefulWidget {
-  const AssignBatchBottomSheet({
-    super.key,
-    required this.deviceFacadeService,
-  });
+  const AssignBatchBottomSheet({super.key, required this.deviceFacadeService});
 
   final DeviceFacadeService deviceFacadeService;
 
@@ -24,22 +20,10 @@ class AssignBatchBottomSheet extends StatefulWidget {
 
 class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _unitWeightController = TextEditingController();
-  final _tareWeightController = TextEditingController(text: '0');
 
   List<Batch> _batches = [];
   bool _loadingBatches = true;
   Batch? _selectedBatch;
-  // (abbreviation, fullName, displayLabel)
-  static const _weightUnits = [
-    ('g', 'grams', 'Grams (g)'),
-    ('kg', 'kilograms', 'Kilograms (kg)'),
-    ('l', 'liters', 'Liters (l)'),
-    ('ml', 'milliliters', 'Milliliters (ml)'),
-    ('unit', 'units', 'Units'),
-  ];
-
-  String _selectedWeightUnitAbbreviation = 'g';
   bool _isSubmitting = false;
 
   @override
@@ -50,7 +34,8 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
 
   Future<void> _loadBatches() async {
     try {
-      final batches = await widget.deviceFacadeService.getBatchesForAssignment();
+      final batches = await widget.deviceFacadeService
+          .getBatchesForAssignment();
       if (mounted) {
         setState(() {
           _batches = batches;
@@ -62,37 +47,13 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
     }
   }
 
-  @override
-  void dispose() {
-    _unitWeightController.dispose();
-    _tareWeightController.dispose();
-    super.dispose();
-  }
-
   void _submit(BuildContext ctx) {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedBatch == null) return;
 
     setState(() => _isSubmitting = true);
-    final unit = _weightUnits.firstWhere(
-      (u) => u.$1 == _selectedWeightUnitAbbreviation,
-      orElse: () => _weightUnits.first,
-    );
     final batch = _selectedBatch!;
-    ctx.read<DeviceDetailBloc>().add(
-      BatchAssigned(
-        batchId: batch.id,
-        customSupplyId: batch.customSupplyId,
-        minStock: batch.minimumStock ?? 0.0,
-        maxStock: batch.maximumStock ?? batch.currentStock,
-        measurement: DeviceMeasurement(
-          netWeight: double.parse(_unitWeightController.text.trim()),
-          tareWeight: double.parse(_tareWeightController.text.trim()),
-          weightUnitName: unit.$2,
-          weightUnitAbbreviation: unit.$1,
-        ),
-      ),
-    );
+    ctx.read<DeviceDetailBloc>().add(BatchAssigned(batchId: batch.id));
   }
 
   @override
@@ -115,9 +76,9 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
       },
       child: DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.65,
+        initialChildSize: 0.42,
         minChildSize: 0.4,
-        maxChildSize: 0.92,
+        maxChildSize: 0.72,
         builder: (_, scrollController) => Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -195,65 +156,6 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
                                 validator: (v) =>
                                     v == null ? 'Select a batch' : null,
                               ),
-                              const SizedBox(height: 16),
-                              _label('Weight Unit'),
-                              const SizedBox(height: 6),
-                              DropdownButtonFormField<String>(
-                                initialValue: _selectedWeightUnitAbbreviation,
-                                decoration: _inputDecoration(),
-                                items: _weightUnits
-                                    .map(
-                                      (u) => DropdownMenuItem(
-                                        value: u.$1,
-                                        child: Text(u.$3),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (v) => setState(
-                                  () => _selectedWeightUnitAbbreviation =
-                                      v ?? 'g',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              _label('Net Weight'),
-                              const SizedBox(height: 6),
-                              TextFormField(
-                                controller: _unitWeightController,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                decoration: _inputDecoration(hint: 'e.g. 100'),
-                                validator: (v) {
-                                  if (v == null || v.trim().isEmpty) {
-                                    return 'Net weight is required';
-                                  }
-                                  if (double.tryParse(v.trim()) == null) {
-                                    return 'Enter a valid number';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              _label('Tare Weight'),
-                              const SizedBox(height: 6),
-                              TextFormField(
-                                controller: _tareWeightController,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                decoration: _inputDecoration(hint: '0'),
-                                validator: (v) {
-                                  if (v == null || v.trim().isEmpty) {
-                                    return 'Tare weight is required';
-                                  }
-                                  if (double.tryParse(v.trim()) == null) {
-                                    return 'Enter a valid number';
-                                  }
-                                  return null;
-                                },
-                              ),
                               const SizedBox(height: 32),
                             ],
                           ),
@@ -268,7 +170,7 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
                         DevicesTheme.sidePadding,
                   ),
                   child: RestockButton(
-                    text: 'Save Assignment',
+                    text: 'Save batch',
                     isLoading: _isSubmitting,
                     onPressed: (_isSubmitting || _selectedBatch == null)
                         ? null
@@ -284,24 +186,24 @@ class _AssignBatchBottomSheetState extends State<AssignBatchBottomSheet> {
   }
 
   Widget _label(String text) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: DevicesTheme.textPrimary,
-        ),
-      );
+    text,
+    style: const TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
+      color: DevicesTheme.textPrimary,
+    ),
+  );
 
   InputDecoration _inputDecoration({String? hint}) => InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: DevicesTheme.textSecondary),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
-          borderSide: const BorderSide(color: DevicesTheme.borderGray),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
-          borderSide: const BorderSide(color: DevicesTheme.borderGray),
-        ),
-      );
+    hintText: hint,
+    hintStyle: const TextStyle(color: DevicesTheme.textSecondary),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
+      borderSide: const BorderSide(color: DevicesTheme.borderGray),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
+      borderSide: const BorderSide(color: DevicesTheme.borderGray),
+    ),
+  );
 }

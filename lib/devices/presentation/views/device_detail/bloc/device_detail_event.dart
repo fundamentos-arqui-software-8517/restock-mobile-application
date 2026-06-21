@@ -11,18 +11,14 @@ class DeviceDetailFetched extends DeviceDetailEvent {
 }
 
 class BatchAssigned extends DeviceDetailEvent {
-  const BatchAssigned({
-    required this.batchId,
-    required this.customSupplyId,
-    required this.minStock,
-    required this.maxStock,
-    required this.measurement,
-  });
+  const BatchAssigned({required this.batchId});
 
   final String batchId;
-  final String customSupplyId;
-  final double minStock;
-  final double maxStock;
+}
+
+class DeviceCalibrated extends DeviceDetailEvent {
+  const DeviceCalibrated({required this.measurement});
+
   final DeviceMeasurement measurement;
 }
 

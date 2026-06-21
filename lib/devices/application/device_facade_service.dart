@@ -1,8 +1,6 @@
 import 'package:restock/devices/domain/entities/assign_batch_command.dart';
 import 'package:restock/devices/domain/entities/assign_branch_command.dart';
-import 'package:restock/devices/domain/entities/assign_threshold_command.dart';
-import 'package:restock/devices/domain/entities/batch.dart';
-import 'package:restock/devices/domain/entities/create_threshold_command.dart';
+import 'package:restock/resources/domain/entities/batch.dart';
 import 'package:restock/devices/domain/entities/device.dart';
 import 'package:restock/devices/domain/entities/device_measurement.dart';
 import 'package:restock/devices/domain/entities/device_specifications.dart';
@@ -11,7 +9,7 @@ import 'package:restock/devices/domain/entities/register_device_command.dart';
 import 'package:restock/devices/domain/entities/update_device_specifications_command.dart';
 import 'package:restock/devices/domain/entities/update_device_status_command.dart';
 import 'package:restock/devices/domain/entities/update_measurement_command.dart';
-import 'package:restock/devices/domain/repositories/batch_repository.dart';
+import 'package:restock/resources/domain/repositories/batch_repository.dart';
 import 'package:restock/devices/domain/repositories/device_repository.dart';
 import 'package:restock/devices/domain/repositories/device_threshold_repository.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
@@ -54,9 +52,21 @@ class DeviceFacadeService {
     try {
       final accountId = await tokenStorage.readAccountId();
       if (accountId == null) throw Exception('Account ID not found');
-      return await batchRepository.getBatchesByAccountId(accountId);
+      return await batchRepository.getBatchesByBranchId(
+        accountId: accountId,
+        branchId: await _resolveDefaultBranchId(),
+      );
     } catch (e) {
       throw Exception('Failed to fetch batches: $e');
+    }
+  }
+
+  Future<Batch> getAssignedBatch(String batchId) async {
+    try {
+      final batches = await getBatchesForAssignment();
+      return batches.firstWhere((batch) => batch.id == batchId);
+    } catch (e) {
+      throw Exception('Failed to resolve assigned batch: $e');
     }
   }
 
@@ -91,27 +101,43 @@ class DeviceFacadeService {
     }
   }
 
-  Future<Device> completeOnboarding({
+  Future<Device> assignBatchForOnboarding({
     required String deviceId,
     required String batchId,
-    required String customSupplyId,
-    required double minStock,
-    required double maxStock,
-    required DeviceMeasurement measurement,
   }) async {
     try {
-      final accountId = await tokenStorage.readAccountId();
-      if (accountId == null) throw Exception('Account ID not found');
-
       // 1. Assign batch
       await deviceRepository.assignBatch(
         AssignBatchCommand(deviceId: deviceId, batchId: batchId),
       );
 
-      // 2. Update measurement — compute grossWeight and set calibrationDate
+      // 2. Add default specifications silently
+      await deviceRepository.updateSpecifications(
+        UpdateDeviceSpecificationsCommand(
+          deviceId: deviceId,
+          specifications: DeviceSpecifications.defaults,
+        ),
+      );
+
+      // 3. Assign branch — resolve default branchId
+      final branchId = await _resolveDefaultBranchId();
+      await deviceRepository.assignBranch(
+        AssignBranchCommand(deviceId: deviceId, branchId: branchId),
+      );
+
+      return await deviceRepository.getDeviceById(deviceId);
+    } catch (e) {
+      throw Exception('Failed to assign batch for onboarding: $e');
+    }
+  }
+
+  Future<Device> calibrateDevice({
+    required String deviceId,
+    required DeviceMeasurement measurement,
+  }) async {
+    try {
       final grossWeight = measurement.netWeight + measurement.tareWeight;
-      final calibrationDate =
-          DateTime.now().toIso8601String().substring(0, 10);
+      final calibrationDate = DateTime.now().toIso8601String().substring(0, 10);
       await deviceRepository.updateMeasurement(
         UpdateMeasurementCommand(
           deviceId: deviceId,
@@ -126,49 +152,9 @@ class DeviceFacadeService {
         ),
       );
 
-      // 3. Add default specifications silently
-      await deviceRepository.updateSpecifications(
-        UpdateDeviceSpecificationsCommand(
-          deviceId: deviceId,
-          specifications: DeviceSpecifications.defaults,
-        ),
-      );
-
-      // 4. Assign branch — resolve default branchId
-      final branchId = await _resolveDefaultBranchId();
-      await deviceRepository.assignBranch(
-        AssignBranchCommand(deviceId: deviceId, branchId: branchId),
-      );
-
-      // 5. Create default threshold silently and assign it
-      final threshold = await thresholdRepository.createThreshold(
-        CreateThresholdCommand(
-          accountId: accountId,
-          customSupplyId: customSupplyId,
-          minStock: minStock,
-          maxStock: maxStock,
-          anomalyThreshold: 1.0,
-        ),
-      );
-      await deviceRepository.assignThreshold(
-        AssignThresholdCommand(
-          deviceId: deviceId,
-          thresholdId: threshold.thresholdId,
-        ),
-      );
-
-      // 6. Set status to CONFIGURED
-      await deviceRepository.updateStatus(
-        UpdateDeviceStatusCommand(
-          deviceId: deviceId,
-          status: DeviceStatus.configured,
-        ),
-      );
-
-      // 7. Return updated device
       return await deviceRepository.getDeviceById(deviceId);
     } catch (e) {
-      throw Exception('Failed to complete onboarding: $e');
+      throw Exception('Failed to calibrate device: $e');
     }
   }
 
@@ -177,11 +163,12 @@ class DeviceFacadeService {
     if (cached != null && cached.isNotEmpty) return cached;
 
     final branches = await branchFacadeService.getBranchesByAccountId();
-    if (branches.isEmpty) {
+    final branchId = await branchFacadeService.resolveActiveBranchId(branches);
+    if (branchId == null) {
       throw Exception(
         'No hay branches creadas. Crea una branch antes de configurar devices.',
       );
     }
-    return branches.first.branchId;
+    return branchId;
   }
 }

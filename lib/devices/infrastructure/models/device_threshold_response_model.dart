@@ -28,8 +28,9 @@ class DeviceThresholdResponseModel {
   factory DeviceThresholdResponseModel.fromJson(Map<String, dynamic> json) {
     String value(String key, {String fallback = ''}) =>
         json[key]?.toString() ?? fallback;
-    double? optDouble(String key) =>
-        json[key] != null ? (json[key] as num).toDouble() : null;
+    double? optDouble(String key) => _toDouble(json[key]);
+    final temperature = _asMap(json['temperature']);
+    final humidity = _asMap(json['humidity']);
 
     return DeviceThresholdResponseModel(
       thresholdId: value('id', fallback: value('thresholdId')),
@@ -38,11 +39,26 @@ class DeviceThresholdResponseModel {
       minStock: (json['minStock'] as num?)?.toDouble() ?? 0.0,
       maxStock: (json['maxStock'] as num?)?.toDouble() ?? 0.0,
       anomalyThreshold: (json['anomalyThreshold'] as num?)?.toDouble() ?? 0.0,
-      minTemperature: optDouble('minTemperature'),
-      maxTemperature: optDouble('maxTemperature'),
-      minHumidity: optDouble('minHumidity'),
-      maxHumidity: optDouble('maxHumidity'),
+      minTemperature:
+          _toDouble(temperature?['minCelsius']) ?? optDouble('minTemperature'),
+      maxTemperature:
+          _toDouble(temperature?['maxCelsius']) ?? optDouble('maxTemperature'),
+      minHumidity:
+          _toDouble(humidity?['minPercentage']) ?? optDouble('minHumidity'),
+      maxHumidity:
+          _toDouble(humidity?['maxPercentage']) ?? optDouble('maxHumidity'),
     );
+  }
+
+  static Map<String, dynamic>? _asMap(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  static double? _toDouble(Object? value) {
+    if (value is num) return value.toDouble();
+    return null;
   }
 
   DeviceThreshold toDomain() {

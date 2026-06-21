@@ -1,6 +1,7 @@
 class CreateThresholdCommand {
   const CreateThresholdCommand({
     required this.accountId,
+    required this.deviceId,
     required this.customSupplyId,
     required this.minStock,
     required this.maxStock,
@@ -12,6 +13,7 @@ class CreateThresholdCommand {
   });
 
   final String accountId;
+  final String deviceId;
   final String customSupplyId;
   final double minStock;
   final double maxStock;

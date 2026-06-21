@@ -25,15 +25,18 @@ class AssignedBatchCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(DevicesTheme.radiusMd),
         border: Border.all(color: DevicesTheme.borderGray),
       ),
-      child: device.hasBatch ? _BatchInfo(device: device) : _EmptyBatch(onAssign: onAssignBatch),
+      child: device.hasBatch
+          ? _BatchInfo(device: device, onAssign: onAssignBatch)
+          : _EmptyBatch(onAssign: onAssignBatch),
     );
   }
 }
 
 class _BatchInfo extends StatelessWidget {
-  const _BatchInfo({required this.device});
+  const _BatchInfo({required this.device, required this.onAssign});
 
   final Device device;
+  final VoidCallback onAssign;
 
   @override
   Widget build(BuildContext context) {
@@ -57,49 +60,23 @@ class _BatchInfo extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: DevicesTheme.healthyBg,
-                borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
-                border: Border.all(color: DevicesTheme.healthyBorder),
-              ),
-              child: const Text(
-                'ASSIGNED',
-                style: TextStyle(
-                  color: DevicesTheme.healthyText,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
+            OutlinedButton.icon(
+              onPressed: onAssign,
+              icon: const Icon(Icons.swap_horiz_rounded, size: 16),
+              label: const Text('Change'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: DevicesTheme.textPrimary,
+                side: const BorderSide(color: DevicesTheme.borderGray),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
                 ),
+                textStyle: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
         _InfoRow(label: 'Batch ID', value: device.assignedBatchId ?? '—'),
-        if (device.measurement != null) ...[
-          const SizedBox(height: 6),
-          _InfoRow(
-            label: 'Unit',
-            value: device.measurement!.weightUnitName,
-          ),
-          _InfoRow(
-            label: 'Net weight',
-            value:
-                '${device.measurement!.netWeight} ${device.measurement!.weightUnitAbbreviation}',
-          ),
-          _InfoRow(
-            label: 'Tare weight',
-            value:
-                '${device.measurement!.tareWeight} ${device.measurement!.weightUnitAbbreviation}',
-          ),
-          if (device.measurement!.grossWeight != null)
-            _InfoRow(
-              label: 'Gross weight',
-              value:
-                  '${device.measurement!.grossWeight} ${device.measurement!.weightUnitAbbreviation}',
-            ),
-        ],
       ],
     );
   }

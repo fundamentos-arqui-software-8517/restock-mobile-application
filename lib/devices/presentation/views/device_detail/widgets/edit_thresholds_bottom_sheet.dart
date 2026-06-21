@@ -18,8 +18,7 @@ class EditThresholdsBottomSheet extends StatefulWidget {
       _EditThresholdsBottomSheetState();
 }
 
-class _EditThresholdsBottomSheetState
-    extends State<EditThresholdsBottomSheet> {
+class _EditThresholdsBottomSheetState extends State<EditThresholdsBottomSheet> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _minStock;
@@ -43,14 +42,10 @@ class _EditThresholdsBottomSheetState
       text: e != null ? e.maxStock.toString() : '',
     );
     _anomaly = TextEditingController(
-      text: e != null ? e.anomalyThreshold.toString() : '',
+      text: e != null ? e.anomalyThreshold.toString() : '1',
     );
-    _minTemp = TextEditingController(
-      text: e?.minTemperature?.toString() ?? '',
-    );
-    _maxTemp = TextEditingController(
-      text: e?.maxTemperature?.toString() ?? '',
-    );
+    _minTemp = TextEditingController(text: e?.minTemperature?.toString() ?? '');
+    _maxTemp = TextEditingController(text: e?.maxTemperature?.toString() ?? '');
     _minHumidity = TextEditingController(
       text: e?.minHumidity?.toString() ?? '',
     );
@@ -78,7 +73,7 @@ class _EditThresholdsBottomSheetState
       ThresholdsSaved(
         minStock: double.parse(_minStock.text.trim()),
         maxStock: double.parse(_maxStock.text.trim()),
-        anomalyThreshold: double.parse(_anomaly.text.trim()),
+        anomalyThreshold: double.tryParse(_anomaly.text.trim()) ?? 1,
         minTemperature: _optDouble(_minTemp.text),
         maxTemperature: _optDouble(_maxTemp.text),
         minHumidity: _optDouble(_minHumidity.text),
@@ -111,124 +106,84 @@ class _EditThresholdsBottomSheetState
           }
         }
       },
-      child: DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.65,
-        minChildSize: 0.4,
-        maxChildSize: 0.92,
-        builder: (_, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      child: Scaffold(
+        backgroundColor: DevicesTheme.background,
+        appBar: AppBar(
+          backgroundColor: DevicesTheme.headerDark,
+          foregroundColor: Colors.white,
+          title: const Text(
+            'Set Thresholds',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 12, bottom: 8),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: DevicesTheme.borderGray,
-                      borderRadius: BorderRadius.circular(2),
+        ),
+        body: SafeArea(
+          top: false,
+          child: ColoredBox(
+            color: Colors.white,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      DevicesTheme.sidePadding,
+                      20,
+                      DevicesTheme.sidePadding,
+                      16,
+                    ),
+                    child: _SheetHeader(),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: DevicesTheme.sidePadding,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Divider(
+                            height: 1,
+                            color: DevicesTheme.borderGray,
+                          ),
+                          const SizedBox(height: 16),
+                          const _SectionTitle(
+                            icon: Icons.inventory_2_outlined,
+                            title: 'Stock limits',
+                          ),
+                          const SizedBox(height: 14),
+                          _stockFields(context),
+                          const SizedBox(height: 24),
+                          const _SectionTitle(
+                            icon: Icons.thermostat_outlined,
+                            title: 'Environmental limits',
+                          ),
+                          const SizedBox(height: 12),
+                          _environmentCards(context),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    DevicesTheme.sidePadding,
-                    8,
-                    DevicesTheme.sidePadding,
-                    16,
-                  ),
-                  child: Text(
-                    'Alert Thresholds',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: DevicesTheme.textPrimary,
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      DevicesTheme.sidePadding,
+                      0,
+                      DevicesTheme.sidePadding,
+                      DevicesTheme.sidePadding,
+                    ),
+                    child: RestockButton(
+                      text: 'Complete setup',
+                      isLoading: _isSubmitting,
+                      onPressed: _isSubmitting ? null : () => _submit(context),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DevicesTheme.sidePadding,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _sectionLabel('Stock Limits'),
-                        const SizedBox(height: 8),
-                        _field(
-                          controller: _minStock,
-                          label: 'Min Stock',
-                          required: true,
-                        ),
-                        const SizedBox(height: 12),
-                        _field(
-                          controller: _maxStock,
-                          label: 'Max Stock',
-                          required: true,
-                        ),
-                        const SizedBox(height: 12),
-                        _field(
-                          controller: _anomaly,
-                          label: 'Anomaly Threshold',
-                          required: true,
-                        ),
-                        const SizedBox(height: 20),
-                        _sectionLabel('Temperature (optional)'),
-                        const SizedBox(height: 8),
-                        _field(
-                          controller: _minTemp,
-                          label: 'Min Temperature (°C)',
-                          required: false,
-                        ),
-                        const SizedBox(height: 12),
-                        _field(
-                          controller: _maxTemp,
-                          label: 'Max Temperature (°C)',
-                          required: false,
-                        ),
-                        const SizedBox(height: 20),
-                        _sectionLabel('Humidity (optional)'),
-                        const SizedBox(height: 8),
-                        _field(
-                          controller: _minHumidity,
-                          label: 'Min Humidity (%)',
-                          required: false,
-                        ),
-                        const SizedBox(height: 12),
-                        _field(
-                          controller: _maxHumidity,
-                          label: 'Max Humidity (%)',
-                          required: false,
-                        ),
-                        const SizedBox(height: 32),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    DevicesTheme.sidePadding,
-                    0,
-                    DevicesTheme.sidePadding,
-                    MediaQuery.of(context).viewInsets.bottom +
-                        DevicesTheme.sidePadding,
-                  ),
-                  child: RestockButton(
-                    text: 'Save Thresholds',
-                    isLoading: _isSubmitting,
-                    onPressed: _isSubmitting ? null : () => _submit(context),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -236,46 +191,341 @@ class _EditThresholdsBottomSheetState
     );
   }
 
-  Widget _sectionLabel(String text) => Text(
-    text,
-    style: const TextStyle(
-      fontSize: 12,
-      fontWeight: FontWeight.w600,
-      color: DevicesTheme.textSecondary,
-      letterSpacing: 0.5,
-    ),
-  );
+  Widget _stockFields(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 620;
+    if (wide) {
+      return Row(
+        children: [
+          Expanded(
+            child: _limitField(
+              controller: _minStock,
+              label: 'MINIMUM STOCK ALERT',
+              suffix: 'units',
+              required: true,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _limitField(
+              controller: _maxStock,
+              label: 'MAXIMUM CAPACITY',
+              suffix: 'units',
+              required: true,
+            ),
+          ),
+        ],
+      );
+    }
 
-  Widget _field({
+    return Column(
+      children: [
+        _limitField(
+          controller: _minStock,
+          label: 'MINIMUM STOCK ALERT',
+          suffix: 'units',
+          required: true,
+        ),
+        const SizedBox(height: 12),
+        _limitField(
+          controller: _maxStock,
+          label: 'MAXIMUM CAPACITY',
+          suffix: 'units',
+          required: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _environmentCards(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 620;
+    if (wide) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: _RangeCard(
+              title: 'Temperature',
+              subtitle: 'Allowed sensor range in C',
+              minController: _minTemp,
+              maxController: _maxTemp,
+              validator: _optionalNumberValidator,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _RangeCard(
+              title: 'Humidity',
+              subtitle: 'Allowed relative humidity',
+              minController: _minHumidity,
+              maxController: _maxHumidity,
+              validator: _optionalNumberValidator,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        _RangeCard(
+          title: 'Temperature',
+          subtitle: 'Allowed sensor range in C',
+          minController: _minTemp,
+          maxController: _maxTemp,
+          validator: _optionalNumberValidator,
+        ),
+        const SizedBox(height: 12),
+        _RangeCard(
+          title: 'Humidity',
+          subtitle: 'Allowed relative humidity',
+          minController: _minHumidity,
+          maxController: _maxHumidity,
+          validator: _optionalNumberValidator,
+        ),
+      ],
+    );
+  }
+
+  String? _optionalNumberValidator(String? v) {
+    if (v != null && v.trim().isNotEmpty && double.tryParse(v.trim()) == null) {
+      return 'Enter a valid number';
+    }
+    return null;
+  }
+
+  Widget _limitField({
     required TextEditingController controller,
     required String label,
     required bool required,
+    String? suffix,
   }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: DevicesTheme.textSecondary),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
-          borderSide: const BorderSide(color: DevicesTheme.borderGray),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            color: DevicesTheme.textSecondary,
+            letterSpacing: 0.7,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
-          borderSide: const BorderSide(color: DevicesTheme.borderGray),
+        const SizedBox(height: 7),
+        TextFormField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: _fieldDecoration(suffix: suffix),
+          validator: (v) {
+            if (required && (v == null || v.trim().isEmpty)) {
+              return '$label is required';
+            }
+            return _optionalNumberValidator(v);
+          },
         ),
+      ],
+    );
+  }
+
+  static InputDecoration _fieldDecoration({String? hint, String? suffix}) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: DevicesTheme.textSecondary,
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
       ),
-      validator: (v) {
-        if (required && (v == null || v.trim().isEmpty)) {
-          return '$label is required';
-        }
-        if (v != null && v.trim().isNotEmpty &&
-            double.tryParse(v.trim()) == null) {
-          return 'Enter a valid number';
-        }
-        return null;
-      },
+      suffixText: suffix,
+      suffixStyle: const TextStyle(
+        color: DevicesTheme.textSecondary,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
+        borderSide: const BorderSide(color: DevicesTheme.borderGray),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
+        borderSide: const BorderSide(color: DevicesTheme.borderGray),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
+        borderSide: const BorderSide(color: DevicesTheme.greenPrimary),
+      ),
+    );
+  }
+}
+
+class _SheetHeader extends StatelessWidget {
+  const _SheetHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            color: Color(0xFFE2F8EC),
+            shape: BoxShape.circle,
+          ),
+          child: const Text(
+            '4',
+            style: TextStyle(
+              color: DevicesTheme.greenPrimary,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Alert thresholds',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: DevicesTheme.textPrimary,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'Define stock and environmental limits for automatic monitoring.',
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.35,
+                  color: DevicesTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({required this.icon, required this.title});
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: DevicesTheme.greenPrimary),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            color: DevicesTheme.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RangeCard extends StatelessWidget {
+  const _RangeCard({
+    required this.title,
+    required this.subtitle,
+    required this.minController,
+    required this.maxController,
+    required this.validator,
+  });
+
+  final String title;
+  final String subtitle;
+  final TextEditingController minController;
+  final TextEditingController maxController;
+  final FormFieldValidator<String> validator;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFBFCFD),
+        borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
+        border: Border.all(color: DevicesTheme.borderGray),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: DevicesTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 12,
+              color: DevicesTheme.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: minController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: _EditThresholdsBottomSheetState._fieldDecoration(
+                    hint: 'Min',
+                  ),
+                  validator: validator,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  'TO',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: DevicesTheme.textSecondary,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: maxController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: _EditThresholdsBottomSheetState._fieldDecoration(
+                    hint: 'Max',
+                  ),
+                  validator: validator,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
