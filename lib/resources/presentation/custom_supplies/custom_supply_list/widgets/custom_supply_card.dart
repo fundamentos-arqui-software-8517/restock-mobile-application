@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:restock/injections.dart';
 import 'package:restock/resources/application/custom_supply_facade_service.dart';
 import 'package:restock/resources/domain/entities/custom_supply.dart';
@@ -20,6 +21,8 @@ class SupplyItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: () =>
+          context.push('/supplies/${supply.customSupplyId}', extra: supply),
       onLongPress: () => _openEditSheet(context),
       child: Card(
         color: Colors.white,

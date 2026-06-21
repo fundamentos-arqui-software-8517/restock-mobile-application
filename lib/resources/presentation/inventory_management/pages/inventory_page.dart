@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restock/injections.dart';
+import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/bloc/create_and_edit_custom_supply_bloc.dart';
 import 'package:restock/resources/presentation/custom_supplies/create_and_edit_custom_supply/widgets/create_custom_supply_form.dart';
 import 'package:restock/resources/presentation/custom_supplies/custom_supply_list/bloc/custom_supply_list_bloc.dart';
@@ -14,8 +15,39 @@ import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 /// The main page for inventory management, displaying the list of custom supplies.
 ///
 /// Handles loading, error, and empty states for the inventory list using BlocBuilder to listen to the CustomSupplyListBloc.
-class InventoryPage extends StatelessWidget {
+class InventoryPage extends StatefulWidget {
   const InventoryPage({super.key});
+
+  @override
+  State<InventoryPage> createState() => _InventoryPageState();
+}
+
+class _InventoryPageState extends State<InventoryPage> {
+  late final BranchFacadeService _branchFacadeService;
+
+  @override
+  void initState() {
+    super.initState();
+    _branchFacadeService = serviceLocator<BranchFacadeService>();
+    _branchFacadeService.activeBranchIdListenable.addListener(
+      _refreshForActiveBranch,
+    );
+  }
+
+  @override
+  void dispose() {
+    _branchFacadeService.activeBranchIdListenable.removeListener(
+      _refreshForActiveBranch,
+    );
+    super.dispose();
+  }
+
+  void _refreshForActiveBranch() {
+    if (!mounted) return;
+    context.read<CustomSupplyListBloc>().add(
+      const GetCustomSuppliesByBranchId(),
+    );
+  }
 
   Future<void> _openCreateSheet(BuildContext context) async {
     final listBloc = context.read<CustomSupplyListBloc>();
@@ -69,7 +101,10 @@ class InventoryPage extends StatelessWidget {
                   onAddSupply: () => _openCreateSheet(context),
                 );
               }
-              return CustomSupplyListView(customSupplies: state.customSupplies);
+              return CustomSupplyListView(
+                customSupplies: state.filteredCustomSupplies,
+                isSearching: state.isSearching,
+              );
           }
         },
       ),

@@ -12,9 +12,14 @@ import 'package:restock/resources/presentation/custom_supplies/custom_supply_lis
 ///
 /// The [CustomSupplyListView] takes a list of [CustomSupply] objects and renders them in a visually appealing way, allowing users to easily browse and manage their custom supplies. The search bar at the top allows users to filter the list of supplies, while the "Add Custom Supply" button provides a convenient way to add new items to the list. Each supply is displayed using the [SupplyItemCard] widget, which shows relevant information about the supply in a card format.
 class CustomSupplyListView extends StatelessWidget {
-  const CustomSupplyListView({required this.customSupplies, super.key});
+  const CustomSupplyListView({
+    required this.customSupplies,
+    required this.isSearching,
+    super.key,
+  });
 
   final List<CustomSupply> customSupplies;
+  final bool isSearching;
 
   Future<void> _openCreateSheet(BuildContext context) async {
     final listBloc = context.read<CustomSupplyListBloc>();
@@ -48,6 +53,9 @@ class CustomSupplyListView extends StatelessWidget {
         children: [
           const SizedBox(height: 16),
           TextField(
+            onChanged: (query) => context.read<CustomSupplyListBloc>().add(
+              CustomSupplySearchChanged(query),
+            ),
             decoration: InputDecoration(
               hintText: 'Search supply...',
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
@@ -89,19 +97,31 @@ class CustomSupplyListView extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: GridView.builder(
-              itemCount: customSupplies.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-                childAspectRatio: 0.84,
-              ),
-              itemBuilder: (context, index) {
-                final supply = customSupplies[index];
-                return SupplyItemCard(supply: supply);
-              },
-            ),
+            child: customSupplies.isEmpty && isSearching
+                ? const Center(
+                    child: Text(
+                      'No matching supplies',
+                      style: TextStyle(
+                        color: Color(0xFF5A6472),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                : GridView.builder(
+                    itemCount: customSupplies.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 14,
+                          childAspectRatio: 0.84,
+                        ),
+                    itemBuilder: (context, index) {
+                      final supply = customSupplies[index];
+                      return SupplyItemCard(supply: supply);
+                    },
+                  ),
           ),
         ],
       ),

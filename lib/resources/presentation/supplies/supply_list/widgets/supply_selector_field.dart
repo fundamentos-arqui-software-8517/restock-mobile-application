@@ -16,12 +16,14 @@ class SupplySelectorField extends StatelessWidget {
     this.value,
     this.label = 'SUPPLY',
     this.enabled = true,
+    this.errorText,
   });
 
   final Supply? value;
   final ValueChanged<Supply?> onChanged;
   final String label;
   final bool enabled;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class SupplySelectorField extends StatelessWidget {
         value: value,
         label: label,
         enabled: enabled,
+        errorText: errorText,
         onChanged: onChanged,
       ),
     );
@@ -45,12 +48,14 @@ class _SupplySelectorContent extends StatelessWidget {
     required this.onChanged,
     this.label = 'SUPPLY',
     this.enabled = true,
+    this.errorText,
   });
 
   final Supply? value;
   final ValueChanged<Supply?> onChanged;
   final String label;
   final bool enabled;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +94,7 @@ class _SupplySelectorContent extends StatelessWidget {
               .toList(),
           decoration: InputDecoration(
             labelText: label,
+            errorText: errorText,
             labelStyle: const TextStyle(
               color: Color(0xFF5A6472),
               fontSize: 11,
@@ -171,6 +177,13 @@ class _SupplySelectorContent extends StatelessWidget {
               borderSide: const BorderSide(
                 color: Color(0xFFE24B4A),
                 width: 1.2,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFE24B4A),
+                width: 1.5,
               ),
             ),
           ),

@@ -1,7 +1,7 @@
 
 import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/domain/entities/address.dart';
-import 'package:restock/shared/infrastructure/constants/database_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resource_database_constants.dart';
 
 /// Represents a branch entity in the database.
 class BranchEntity {
@@ -32,32 +32,32 @@ class BranchEntity {
   /// Creates a [BranchEntity] from a map retrieved from the database.
   factory BranchEntity.fromMap(Map<String, dynamic> map) {
     return BranchEntity(
-      branchId: map[DatabaseConstants.branchId],
-      accountId: map[DatabaseConstants.branchAccountId],
-      name: map[DatabaseConstants.branchName],
-      address: map[DatabaseConstants.branchAddress],
-      city: map[DatabaseConstants.branchCity],
-      stateOrRegion: map[DatabaseConstants.branchStateOrRegion],
-      country: map[DatabaseConstants.branchCountry],
-      imageUrl: map[DatabaseConstants.branchImageUrl],
-      status: map[DatabaseConstants.branchStatus],
-      description: map[DatabaseConstants.branchDescription],
+      branchId: map[ResourceDatabaseConstants.branchId],
+      accountId: map[ResourceDatabaseConstants.branchAccountId],
+      name: map[ResourceDatabaseConstants.branchName],
+      address: map[ResourceDatabaseConstants.branchAddress],
+      city: map[ResourceDatabaseConstants.branchCity],
+      stateOrRegion: map[ResourceDatabaseConstants.branchStateOrRegion],
+      country: map[ResourceDatabaseConstants.branchCountry],
+      imageUrl: map[ResourceDatabaseConstants.branchImageUrl],
+      status: map[ResourceDatabaseConstants.branchStatus],
+      description: map[ResourceDatabaseConstants.branchDescription],
     );
   }
 
   /// Converts the [BranchEntity] to a map for storing in the database.
   Map<String, dynamic> toMap() {
     return {
-      DatabaseConstants.branchId: branchId,
-      DatabaseConstants.branchAccountId: accountId,
-      DatabaseConstants.branchName: name,
-      DatabaseConstants.branchAddress: address,
-      DatabaseConstants.branchCity: city,
-      DatabaseConstants.branchStateOrRegion: stateOrRegion,
-      DatabaseConstants.branchCountry: country,
-      DatabaseConstants.branchImageUrl: imageUrl,
-      DatabaseConstants.branchStatus: status,
-      DatabaseConstants.branchDescription: description,
+      ResourceDatabaseConstants.branchId: branchId,
+      ResourceDatabaseConstants.branchAccountId: accountId,
+      ResourceDatabaseConstants.branchName: name,
+      ResourceDatabaseConstants.branchAddress: address,
+      ResourceDatabaseConstants.branchCity: city,
+      ResourceDatabaseConstants.branchStateOrRegion: stateOrRegion,
+      ResourceDatabaseConstants.branchCountry: country,
+      ResourceDatabaseConstants.branchImageUrl: imageUrl,
+      ResourceDatabaseConstants.branchStatus: status,
+      ResourceDatabaseConstants.branchDescription: description,
     };
   }
 

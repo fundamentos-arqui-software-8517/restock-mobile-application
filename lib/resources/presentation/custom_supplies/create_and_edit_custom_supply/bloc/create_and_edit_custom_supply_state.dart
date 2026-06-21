@@ -19,6 +19,7 @@ class CreateCustomSupplyState {
     this.pictureUrl = '',
     this.image,
     this.errorMessage,
+    this.submitted = false,
   });
 
   final Status status;
@@ -36,13 +37,76 @@ class CreateCustomSupplyState {
   final String pictureUrl;
   final XFile? image;
   final String? errorMessage;
+  final bool submitted;
 
   bool get isValid =>
-      name.isNotEmpty &&
-      supplyId.isNotEmpty &&
-      double.tryParse(minimumStock) != null &&
-      double.tryParse(maximumStock) != null &&
-      double.tryParse(unitPrice) != null;
+      nameError == null &&
+      supplyError == null &&
+      minimumStockError == null &&
+      maximumStockError == null &&
+      unitPriceError == null &&
+      descriptionError == null;
+
+  String? get nameError {
+    if (!submitted) return null;
+    if (name.trim().isEmpty) return 'Supply name is required';
+    return null;
+  }
+
+  String? get supplyError {
+    if (!submitted) return null;
+    if (supplyId.trim().isEmpty) return 'Select a base supply';
+    return null;
+  }
+
+  String? get minimumStockError {
+    if (!submitted) return null;
+    if (minimumStock.trim().isEmpty) return 'Minimum stock is required';
+    final minimum = int.tryParse(minimumStock);
+    if (minimum == null) return 'Enter a whole number';
+
+    final maximum = int.tryParse(maximumStock);
+    if (maximum != null && minimum == maximum) {
+      return 'Minimum and maximum cannot be equal';
+    }
+
+    if (maximum != null && minimum > maximum) {
+      return 'Minimum cannot be greater than maximum';
+    }
+
+    return null;
+  }
+
+  String? get maximumStockError {
+    if (!submitted) return null;
+    if (maximumStock.trim().isEmpty) return 'Maximum stock is required';
+    final maximum = int.tryParse(maximumStock);
+    if (maximum == null) return 'Enter a whole number';
+
+    final minimum = int.tryParse(minimumStock);
+    if (minimum != null && maximum == minimum) {
+      return 'Maximum and minimum cannot be equal';
+    }
+
+    if (minimum != null && maximum < minimum) {
+      return 'Maximum must be greater than minimum';
+    }
+
+    return null;
+  }
+
+  String? get unitPriceError {
+    if (!submitted) return null;
+    if (unitPrice.trim().isEmpty) return 'Unit price is required';
+    if (int.tryParse(unitPrice) == null) return 'Enter a whole number';
+    return null;
+  }
+
+  String? get descriptionError {
+    if (!submitted) return null;
+    if (description.trim().isEmpty) return 'Description is required';
+    return null;
+  }
 
   bool get isEditing => customSupplyId != null;
 
@@ -71,6 +135,7 @@ class CreateCustomSupplyState {
     String? pictureUrl,
     XFile? image,
     String? errorMessage,
+    bool? submitted,
   }) {
     return CreateCustomSupplyState(
       status: status ?? this.status,
@@ -88,6 +153,7 @@ class CreateCustomSupplyState {
       pictureUrl: pictureUrl ?? this.pictureUrl,
       image: image ?? this.image,
       errorMessage: errorMessage ?? this.errorMessage,
+      submitted: submitted ?? this.submitted,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/resources/domain/entities/branch.dart';
 import 'package:restock/resources/presentation/branches/branch_list/bloc/branch_list_bloc.dart';
@@ -19,6 +20,7 @@ class BranchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: () => context.push('/settings/${branch.branchId}', extra: branch),
       onLongPress: () => _openEditSheet(context),
       child: Container(
         decoration: BoxDecoration(
@@ -108,10 +110,7 @@ class BranchCard extends StatelessWidget {
 
     if (updated is String) {
       branchListBloc.add(
-        BranchStatusUpdated(
-          branchId: branch.branchId,
-          status: updated,
-        ),
+        BranchStatusUpdated(branchId: branch.branchId, status: updated),
       );
     } else if (updated == true) {
       branchListBloc.add(const GetBranches());

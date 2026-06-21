@@ -1,6 +1,6 @@
 import 'package:restock/resources/domain/entities/custom_supply.dart';
 import 'package:restock/resources/domain/entities/supply.dart';
-import 'package:restock/shared/infrastructure/constants/database_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resource_database_constants.dart';
 
 /// Represents a custom supply entity in the application.
 class CustomSupplyEntity {
@@ -36,26 +36,26 @@ class CustomSupplyEntity {
 
   factory CustomSupplyEntity.fromMap(Map<String, dynamic> map) {
     return CustomSupplyEntity(
-      customSupplyId: map[DatabaseConstants.customSupplyId] as String,
-      name: map[DatabaseConstants.customSupplyName] as String,
-      description: map[DatabaseConstants.customSupplyDescription] as String,
+      customSupplyId: map[ResourceDatabaseConstants.customSupplyId] as String,
+      name: map[ResourceDatabaseConstants.customSupplyName] as String,
+      description: map[ResourceDatabaseConstants.customSupplyDescription] as String,
       unitPriceAmount:
-          map[DatabaseConstants.customSupplyUnitPriceAmount] as String,
+          map[ResourceDatabaseConstants.customSupplyUnitPriceAmount] as String,
       unitPriceCurrencyCode:
-          map[DatabaseConstants.customSupplyUnitPriceCurrencyCode] as String,
-      minimumStock: (map[DatabaseConstants.customSupplyMinimumStock] as num)
+          map[ResourceDatabaseConstants.customSupplyUnitPriceCurrencyCode] as String,
+      minimumStock: (map[ResourceDatabaseConstants.customSupplyMinimumStock] as num)
           .toDouble(),
-      maximumStock: (map[DatabaseConstants.customSupplyMaximumStock] as num)
+      maximumStock: (map[ResourceDatabaseConstants.customSupplyMaximumStock] as num)
           .toDouble(),
       unitMeasurement:
-          map[DatabaseConstants.customSupplyUnitMeasurement] as String,
+          map[ResourceDatabaseConstants.customSupplyUnitMeasurement] as String,
       unitMeasurementAbbreviation:
-          map[DatabaseConstants.customSupplyUnitMeasurementAbbreviation]
+          map[ResourceDatabaseConstants.customSupplyUnitMeasurementAbbreviation]
               as String,
-      pictureUrl: map[DatabaseConstants.customSupplyPictureUrl] as String,
+      pictureUrl: map[ResourceDatabaseConstants.customSupplyPictureUrl] as String,
       picturePublicId:
-          map[DatabaseConstants.customSupplyPicturePublicId] as String,
-      accountId: map[DatabaseConstants.customSupplyAccountId] as String,
+          map[ResourceDatabaseConstants.customSupplyPicturePublicId] as String,
+      accountId: map[ResourceDatabaseConstants.customSupplyAccountId] as String,
       supply: Supply(
         supplyId: map['supply_id'] as String,
         name: map['supply_name'] as String,
@@ -68,21 +68,21 @@ class CustomSupplyEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      DatabaseConstants.customSupplyId: customSupplyId,
-      DatabaseConstants.customSupplySupplyId: supply.supplyId,
-      DatabaseConstants.customSupplyName: name,
-      DatabaseConstants.customSupplyDescription: description,
-      DatabaseConstants.customSupplyUnitPriceAmount: unitPriceAmount,
-      DatabaseConstants.customSupplyUnitPriceCurrencyCode:
+      ResourceDatabaseConstants.customSupplyId: customSupplyId,
+      ResourceDatabaseConstants.customSupplySupplyId: supply.supplyId,
+      ResourceDatabaseConstants.customSupplyName: name,
+      ResourceDatabaseConstants.customSupplyDescription: description,
+      ResourceDatabaseConstants.customSupplyUnitPriceAmount: unitPriceAmount,
+      ResourceDatabaseConstants.customSupplyUnitPriceCurrencyCode:
           unitPriceCurrencyCode,
-      DatabaseConstants.customSupplyMinimumStock: minimumStock,
-      DatabaseConstants.customSupplyMaximumStock: maximumStock,
-      DatabaseConstants.customSupplyUnitMeasurement: unitMeasurement,
-      DatabaseConstants.customSupplyUnitMeasurementAbbreviation:
+      ResourceDatabaseConstants.customSupplyMinimumStock: minimumStock,
+      ResourceDatabaseConstants.customSupplyMaximumStock: maximumStock,
+      ResourceDatabaseConstants.customSupplyUnitMeasurement: unitMeasurement,
+      ResourceDatabaseConstants.customSupplyUnitMeasurementAbbreviation:
           unitMeasurementAbbreviation,
-      DatabaseConstants.customSupplyPictureUrl: pictureUrl,
-      DatabaseConstants.customSupplyPicturePublicId: picturePublicId,
-      DatabaseConstants.customSupplyAccountId: accountId,
+      ResourceDatabaseConstants.customSupplyPictureUrl: pictureUrl,
+      ResourceDatabaseConstants.customSupplyPicturePublicId: picturePublicId,
+      ResourceDatabaseConstants.customSupplyAccountId: accountId,
     };
   }
 
