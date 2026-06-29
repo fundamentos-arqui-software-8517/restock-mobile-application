@@ -35,6 +35,7 @@ class DeviceThresholdFacadeService {
       final threshold = await thresholdRepository.createThreshold(
         CreateThresholdCommand(
           accountId: accountId,
+          deviceId: deviceId,
           customSupplyId: customSupplyId,
           minStock: minStock,
           maxStock: maxStock,

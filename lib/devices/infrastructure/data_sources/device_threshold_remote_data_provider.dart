@@ -3,8 +3,9 @@ import 'dart:io';
 
 import 'package:restock/devices/infrastructure/models/create_threshold_request.dart';
 import 'package:restock/devices/infrastructure/models/device_threshold_response_model.dart';
+import 'package:restock/devices/infrastructure/repositories/constants/devices_api_constants.dart';
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
-import 'package:restock/shared/infrastructure/constants/api_constants.dart';
+import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
 
 class DeviceThresholdRemoteDataProvider {
   DeviceThresholdRemoteDataProvider({required this.http});
@@ -16,7 +17,7 @@ class DeviceThresholdRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceThresholds}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceThresholds}',
       ).replace(queryParameters: {'accountId': accountId});
       final response = await http.get(uri);
       if (response.statusCode == HttpStatus.ok) {
@@ -40,7 +41,7 @@ class DeviceThresholdRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceThresholdById.replaceAll('{thresholdId}', thresholdId)}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceThresholdById.replaceAll('{thresholdId}', thresholdId)}',
       );
       final response = await http.get(uri);
       if (response.statusCode == HttpStatus.ok) {
@@ -59,7 +60,7 @@ class DeviceThresholdRemoteDataProvider {
   ) async {
     try {
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.deviceThresholds}',
+        '${ApiConstants.baseUrl}${DevicesApiConstants.deviceThresholds}',
       );
       final response = await http.post(
         uri,

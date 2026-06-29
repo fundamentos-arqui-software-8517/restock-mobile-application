@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:http/http.dart' as pkg_http;
 import 'package:restock/iam/infrastructure/interceptor/auth_http_client.dart';
-import 'package:restock/resources/domain/entities/update_branch_status_command.dart';
+import 'package:restock/resources/domain/commands/update_branch_status_command.dart';
 import 'package:restock/resources/infrastructure/models/branch_response_model.dart';
 import 'package:restock/resources/infrastructure/models/register_branch_request.dart';
 import 'package:restock/resources/infrastructure/models/update_branch_request.dart';
 import 'package:restock/resources/infrastructure/models/update_branch_status_request.dart';
-import 'package:restock/shared/infrastructure/constants/api_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resources_api_constants.dart';
+import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
 
 /// A data provider for fetching branch data from a remote API.
 class BranchRemoteDataProvider {
@@ -28,7 +29,7 @@ class BranchRemoteDataProvider {
   ) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branches}'
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.branches}'
       ).replace(queryParameters: {'accountId': accountId}
       );
 
@@ -53,7 +54,7 @@ class BranchRemoteDataProvider {
   ) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branches}'
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.branches}'
       ).replace(queryParameters: {'accountId': accountId});
 
       final multipartRequest = await request.toMultipartRequest(uri, 'POST');
@@ -78,7 +79,7 @@ class BranchRemoteDataProvider {
   ) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branchById.replaceAll('{branchId}', branchId)}',
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.branchById.replaceAll('{branchId}', branchId)}',
       );
 
       final multipartRequest = await request.toMultipartRequest(uri);
@@ -95,11 +96,11 @@ class BranchRemoteDataProvider {
     }
   }
 
-  // Fetches a branch by its ID from the remote API.
+  /// Fetches a branch by its ID from the remote API.
   Future<BranchResponseModel> getBranchById(String branchId) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branchById.replaceAll('{branchId}', branchId)}',
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.branchById.replaceAll('{branchId}', branchId)}',
       );
       final response = await http.get(uri);
 
@@ -116,7 +117,7 @@ class BranchRemoteDataProvider {
   Future<void> updateBranchStatus(UpdateBranchStatusRequest command) async {
     try {
       final Uri uri = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.branchStatus.replaceAll('{branchId}', command.branchId)}',
+        '${ApiConstants.baseUrl}${ResourcesApiConstants.branchStatus.replaceAll('{branchId}', command.branchId)}',
       );
       final response = await http.patch(
         uri,

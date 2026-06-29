@@ -21,6 +21,7 @@ class DeviceListState {
       .where(
         (d) =>
             d.status == DeviceStatus.configured ||
+            d.status == DeviceStatus.calibrated ||
             d.status == DeviceStatus.active,
       )
       .length;

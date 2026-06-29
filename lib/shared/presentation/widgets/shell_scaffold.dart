@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 /// A custom Scaffold widget that serves as the main shell for the Restock application, providing a consistent layout and navigation structure.
-/// 
+///
 /// This Scaffold includes a bottom navigation bar with icons and labels for different sections of the app, and it uses a StatefulNavigationShell to manage the navigation state across different branches.
 class ShellScaffold extends StatelessWidget {
   const ShellScaffold({super.key, required this.navigationShell});
@@ -15,8 +15,8 @@ class ShellScaffold extends StatelessWidget {
 
   static const _items = [
     (Icons.dashboard_outlined, 'Overview'),
-    (Icons.inventory_2_outlined, 'Inventory'),
-    (Icons.notifications_outlined, 'Alerts'),
+    (Icons.inventory_2_outlined, 'Supplies'),
+    (Icons.inventory_outlined, 'Inventory'),
     (Icons.developer_board_outlined, 'Devices'),
     (Icons.settings_outlined, 'Settings'),
   ];
@@ -29,11 +29,9 @@ class ShellScaffold extends StatelessWidget {
       bottomNavigationBar: Container(
         color: _bg,
         child: SafeArea(
-          top:
-              false,
+          top: false,
           child: Container(
-            height:
-                64,
+            height: 64,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -43,8 +41,7 @@ class ShellScaffold extends StatelessWidget {
 
                 return Expanded(
                   child: GestureDetector(
-                    behavior: HitTestBehavior
-                        .opaque,
+                    behavior: HitTestBehavior.opaque,
                     onTap: () => navigationShell.goBranch(
                       i,
                       initialLocation: i == navigationShell.currentIndex,
@@ -55,21 +52,13 @@ class ShellScaffold extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          Icon(
-                            _items[i].$1,
-                            color: color,
-                            size:
-                                24,
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
+                          Icon(_items[i].$1, color: color, size: 24),
+                          const SizedBox(height: 4),
                           Text(
                             _items[i].$2,
                             style: TextStyle(
                               color: color,
-                              fontSize:
-                                  11,
+                              fontSize: 11,
                               fontWeight: isActive
                                   ? FontWeight.w600
                                   : FontWeight.w400,

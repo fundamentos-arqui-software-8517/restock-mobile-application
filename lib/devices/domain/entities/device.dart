@@ -30,7 +30,9 @@ class Device {
   String? get firmwareVersion => specifications?.firmwareVersion;
 
   bool get isOnboardingComplete =>
-      status == DeviceStatus.configured || status == DeviceStatus.active;
+      status == DeviceStatus.configured ||
+      status == DeviceStatus.calibrated ||
+      status == DeviceStatus.active;
 
   bool get hasBatch => assignedBatchId != null;
 }

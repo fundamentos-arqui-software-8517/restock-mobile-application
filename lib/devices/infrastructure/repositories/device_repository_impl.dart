@@ -10,6 +10,7 @@ import 'package:restock/devices/domain/repositories/device_repository.dart';
 import 'package:restock/devices/infrastructure/data_sources/device_remote_data_provider.dart';
 import 'package:restock/devices/infrastructure/models/assign_batch_request.dart';
 import 'package:restock/devices/infrastructure/models/assign_branch_request.dart';
+import 'package:restock/devices/infrastructure/models/assign_threshold_request.dart';
 import 'package:restock/devices/infrastructure/models/register_device_request.dart';
 import 'package:restock/devices/infrastructure/models/update_measurement_request.dart';
 import 'package:restock/devices/infrastructure/models/update_specifications_request.dart';
@@ -23,8 +24,9 @@ class DeviceRepositoryImpl implements DeviceRepository {
   @override
   Future<List<Device>> getDevicesByAccountId(String accountId) async {
     try {
-      final response =
-          await deviceRemoteDataProvider.getDevicesByAccountId(accountId);
+      final response = await deviceRemoteDataProvider.getDevicesByAccountId(
+        accountId,
+      );
       return response.map((m) => m.toDomain()).toList();
     } catch (e) {
       throw Exception('Failed to get devices: $e');
@@ -110,9 +112,10 @@ class DeviceRepositoryImpl implements DeviceRepository {
   @override
   Future<Device> assignThreshold(AssignThresholdCommand command) async {
     try {
+      final request = AssignThresholdRequest.fromCommand(command);
       final response = await deviceRemoteDataProvider.assignThreshold(
         command.deviceId,
-        command.thresholdId,
+        request,
       );
       return response.toDomain();
     } catch (e) {
@@ -126,7 +129,8 @@ class DeviceRepositoryImpl implements DeviceRepository {
       final m = command.measurement;
       final gross = m.grossWeight ?? (m.netWeight + m.tareWeight);
       final date =
-          m.calibrationDate ?? DateTime.now().toIso8601String().substring(0, 10);
+          m.calibrationDate ??
+          DateTime.now().toIso8601String().substring(0, 10);
       final request = UpdateMeasurementRequest(
         netWeight: m.netWeight,
         tareWeight: m.tareWeight,
@@ -148,9 +152,7 @@ class DeviceRepositoryImpl implements DeviceRepository {
   @override
   Future<void> updateStatus(UpdateDeviceStatusCommand command) async {
     try {
-      final request = UpdateStatusRequest(
-        status: command.status.toApiString(),
-      );
+      final request = UpdateStatusRequest(status: command.status.toApiString());
       await deviceRemoteDataProvider.updateStatus(command.deviceId, request);
     } catch (e) {
       throw Exception('Failed to update device status: $e');

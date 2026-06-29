@@ -1,18 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:restock/injections.dart';
 import 'package:restock/devices/presentation/utils/devices_theme.dart';
 import 'package:restock/devices/presentation/views/device_list/bloc/device_list_bloc.dart';
 import 'package:restock/devices/presentation/views/device_list/bloc/device_list_event.dart';
 import 'package:restock/devices/presentation/views/device_list/bloc/device_list_state.dart';
+import 'package:restock/resources/application/branch_facade_service.dart';
 import 'package:restock/devices/presentation/views/device_list/widgets/device_card.dart';
 import 'package:restock/devices/presentation/views/device_list/widgets/device_kpi_strip.dart';
 import 'package:restock/devices/presentation/views/device_list/widgets/register_device_bottom_sheet.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/widgets/app_bar.dart';
 
-class DeviceListScreen extends StatelessWidget {
+class DeviceListScreen extends StatefulWidget {
   const DeviceListScreen({super.key});
+
+  @override
+  State<DeviceListScreen> createState() => _DeviceListScreenState();
+}
+
+class _DeviceListScreenState extends State<DeviceListScreen> {
+  late final BranchFacadeService _branchFacadeService;
+
+  @override
+  void initState() {
+    super.initState();
+    _branchFacadeService = serviceLocator<BranchFacadeService>();
+    _branchFacadeService.activeBranchIdListenable.addListener(
+      _refreshForActiveBranch,
+    );
+  }
+
+  @override
+  void dispose() {
+    _branchFacadeService.activeBranchIdListenable.removeListener(
+      _refreshForActiveBranch,
+    );
+    super.dispose();
+  }
+
+  void _refreshForActiveBranch() {
+    if (!mounted) return;
+    context.read<DeviceListBloc>().add(const GetDevices());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,9 +110,7 @@ class DeviceListScreen extends StatelessWidget {
                   height: 52,
                   decoration: BoxDecoration(
                     color: DevicesTheme.greenPrimary,
-                    borderRadius: BorderRadius.circular(
-                      DevicesTheme.radiusSm,
-                    ),
+                    borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -132,11 +161,15 @@ class DeviceListScreen extends StatelessWidget {
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
-                    borderSide: const BorderSide(color: DevicesTheme.borderGray),
+                    borderSide: const BorderSide(
+                      color: DevicesTheme.borderGray,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
-                    borderSide: const BorderSide(color: DevicesTheme.borderGray),
+                    borderSide: const BorderSide(
+                      color: DevicesTheme.borderGray,
+                    ),
                   ),
                 ),
               ),
@@ -207,9 +240,9 @@ class DeviceListScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 28),
                           GestureDetector(
-                            onTap: () => context
-                                .read<DeviceListBloc>()
-                                .add(const GetDevices()),
+                            onTap: () => context.read<DeviceListBloc>().add(
+                              const GetDevices(),
+                            ),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 28,
@@ -288,15 +321,14 @@ class DeviceListScreen extends StatelessWidget {
                     final device = state.filteredDevices[i];
                     return DeviceCard(
                       device: device,
-                      onTap: () => context
-                          .push('/devices/${device.deviceId}')
-                          .then((_) {
-                        if (context.mounted) {
-                          context
-                              .read<DeviceListBloc>()
-                              .add(const GetDevices());
-                        }
-                      }),
+                      onTap: () =>
+                          context.push('/devices/${device.deviceId}').then((_) {
+                            if (context.mounted) {
+                              context.read<DeviceListBloc>().add(
+                                const GetDevices(),
+                              );
+                            }
+                          }),
                     );
                   },
                 ),

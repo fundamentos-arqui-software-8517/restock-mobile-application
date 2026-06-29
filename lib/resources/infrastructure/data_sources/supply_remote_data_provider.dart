@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:http/http.dart' as pkg_http;
 import 'package:restock/resources/infrastructure/models/supply_response_model.dart';
-
-import '../../../shared/infrastructure/constants/api_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resources_api_constants.dart';
+import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
 
 /// A data provider for fetching supply data from a remote API.
 class SupplyRemoteDataProvider {
@@ -16,7 +16,7 @@ class SupplyRemoteDataProvider {
   Future<List<SupplyResponseModel>> getSupplies() async {
     try {
       final Uri uri = Uri.parse(
-        "${ApiConstants.baseUrl}${ApiConstants.supplies}",
+        "${ApiConstants.baseUrl}${ResourcesApiConstants.supplies}",
       );
       final response = await http.get(uri);
 

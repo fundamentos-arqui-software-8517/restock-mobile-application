@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:restock/devices/domain/entities/device.dart';
 import 'package:restock/devices/domain/entities/device_status.dart';
-import 'package:restock/devices/presentation/utils/device_health_mock.dart';
 import 'package:restock/devices/presentation/utils/devices_theme.dart';
 
 class DeviceCard extends StatelessWidget {
-  const DeviceCard({
-    super.key,
-    required this.device,
-    required this.onTap,
-  });
+  const DeviceCard({super.key, required this.device, required this.onTap});
 
   final Device device;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final health = DeviceHealthMock.of(device.deviceId, device.status);
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -73,14 +66,7 @@ class DeviceCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _HealthBadge(health: health),
-                const SizedBox(height: 4),
-                _StatusDot(status: device.status),
-              ],
-            ),
+            _StatusBadge(status: device.status),
           ],
         ),
       ),
@@ -88,45 +74,49 @@ class DeviceCard extends StatelessWidget {
   }
 }
 
-class _HealthBadge extends StatelessWidget {
-  const _HealthBadge({required this.health});
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.status});
 
-  final DeviceHealth health;
+  final DeviceStatus status;
 
   @override
   Widget build(BuildContext context) {
-    final (bg, border, text) = switch (health) {
-      DeviceHealth.healthy => (
-          DevicesTheme.healthyBg,
-          DevicesTheme.healthyBorder,
-          DevicesTheme.healthyText,
-        ),
-      DeviceHealth.warm => (
-          DevicesTheme.warmBg,
-          DevicesTheme.warmBorder,
-          DevicesTheme.warmText,
-        ),
-      DeviceHealth.critical => (
-          DevicesTheme.criticalBg,
-          DevicesTheme.criticalBorder,
-          DevicesTheme.criticalText,
-        ),
-      DeviceHealth.offline => (
-          DevicesTheme.offlineBg,
-          DevicesTheme.offlineBorder,
-          DevicesTheme.offlineText,
-        ),
+    final (bg, border, text, label) = switch (status) {
+      DeviceStatus.registered => (
+        DevicesTheme.offlineBg,
+        DevicesTheme.offlineBorder,
+        DevicesTheme.offlineText,
+        'REGISTERED',
+      ),
+      DeviceStatus.configured => (
+        DevicesTheme.warmBg,
+        DevicesTheme.warmBorder,
+        DevicesTheme.warmText,
+        'CONFIGURED',
+      ),
+      DeviceStatus.calibrated || DeviceStatus.active => (
+        DevicesTheme.healthyBg,
+        DevicesTheme.healthyBorder,
+        DevicesTheme.healthyText,
+        status == DeviceStatus.calibrated ? 'CALIBRATED' : 'ACTIVE',
+      ),
+      DeviceStatus.inactive => (
+        DevicesTheme.offlineBg,
+        DevicesTheme.offlineBorder,
+        DevicesTheme.offlineText,
+        'INACTIVE',
+      ),
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: bg,
         border: Border.all(color: border),
         borderRadius: BorderRadius.circular(DevicesTheme.radiusSm),
       ),
       child: Text(
-        DeviceHealthMock.label(health),
+        label,
         style: TextStyle(
           color: text,
           fontSize: 10,
@@ -134,43 +124,6 @@ class _HealthBadge extends StatelessWidget {
           letterSpacing: 0.5,
         ),
       ),
-    );
-  }
-}
-
-class _StatusDot extends StatelessWidget {
-  const _StatusDot({required this.status});
-
-  final DeviceStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final (color, label) = switch (status) {
-      DeviceStatus.registered => (Colors.orange, 'REGISTERED'),
-      DeviceStatus.configured => (DevicesTheme.greenPrimary, 'CONFIGURED'),
-      DeviceStatus.active => (DevicesTheme.greenAccent, 'ACTIVE'),
-      DeviceStatus.inactive => (DevicesTheme.textSecondary, 'INACTIVE'),
-    };
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 6,
-          height: 6,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.4,
-          ),
-        ),
-      ],
     );
   }
 }

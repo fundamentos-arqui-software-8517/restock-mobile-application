@@ -55,36 +55,40 @@ class CreateCustomSupplyBloc
     Emitter<CreateCustomSupplyState> emit,
   ) async {
     if (state.status == Status.loading) return;
-    if (!state.isValid) return;
 
-    emit(state.copyWith(status: Status.loading));
+    final submittedState = state.copyWith(submitted: true);
+    emit(submittedState);
+
+    if (!submittedState.isValid) return;
+
+    emit(submittedState.copyWith(status: Status.loading));
     try {
-      if (state.isEditing) {
+      if (submittedState.isEditing) {
         await customSupplyFacadeService.updateCustomSupply(
-          customSupplyId: state.customSupplyId!,
-          supplyId: state.supplyId,
-          name: state.name,
-          description: state.description,
-          unitPriceAmount: state.unitPrice,
-          unitPriceCurrencyCode: state.currency,
-          minimumStock: double.parse(state.minimumStock),
-          maximumStock: double.parse(state.maximumStock),
-          unitMeasurement: state.unitMeasurement,
-          unitMeasurementAbbreviation: state.unit,
-          picture: state.image,
+          customSupplyId: submittedState.customSupplyId!,
+          supplyId: submittedState.supplyId,
+          name: submittedState.name,
+          description: submittedState.description,
+          unitPriceAmount: submittedState.unitPrice,
+          unitPriceCurrencyCode: submittedState.currency,
+          minimumStock: double.parse(submittedState.minimumStock),
+          maximumStock: double.parse(submittedState.maximumStock),
+          unitMeasurement: submittedState.unitMeasurement,
+          unitMeasurementAbbreviation: submittedState.unit,
+          picture: submittedState.image,
         );
       } else {
         await customSupplyFacadeService.registerCustomSupply(
-          supplyId: state.supplyId,
-          name: state.name,
-          description: state.description,
-          unitPriceAmount: state.unitPrice,
-          unitPriceCurrencyCode: state.currency,
-          minimumStock: double.parse(state.minimumStock),
-          maximumStock: double.parse(state.maximumStock),
-          unitMeasurement: state.unitMeasurement,
-          unitMeasurementAbbreviation: state.unit,
-          picture: state.image,
+          supplyId: submittedState.supplyId,
+          name: submittedState.name,
+          description: submittedState.description,
+          unitPriceAmount: submittedState.unitPrice,
+          unitPriceCurrencyCode: submittedState.currency,
+          minimumStock: double.parse(submittedState.minimumStock),
+          maximumStock: double.parse(submittedState.maximumStock),
+          unitMeasurement: submittedState.unitMeasurement,
+          unitMeasurementAbbreviation: submittedState.unit,
+          picture: submittedState.image,
         );
       }
 

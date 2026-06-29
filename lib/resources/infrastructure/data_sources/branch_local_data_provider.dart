@@ -1,5 +1,5 @@
 import 'package:restock/resources/infrastructure/models/branch_entity.dart';
-import 'package:restock/shared/infrastructure/constants/database_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resource_database_constants.dart';
 import 'package:restock/shared/infrastructure/database/local_database.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -15,7 +15,7 @@ class BranchLocalDataProvider {
   /// Retrieves all Branch entities from the local database.
   Future<List<BranchEntity>> getBranches() async {
     final db = await appDatabase.database;
-    final result = await db.query(DatabaseConstants.branchesTable);
+    final result = await db.query(ResourceDatabaseConstants.branchesTable);
     return result.map(BranchEntity.fromMap).toList();
   }
 
@@ -23,8 +23,8 @@ class BranchLocalDataProvider {
   Future<BranchEntity?> getBranchById(String branchId) async {
     final db = await appDatabase.database;
     final result = await db.query(
-      DatabaseConstants.branchesTable,
-      where: '${DatabaseConstants.branchId} = ?',
+      ResourceDatabaseConstants.branchesTable,
+      where: '${ResourceDatabaseConstants.branchId} = ?',
       whereArgs: [branchId],
     );
     if (result.isEmpty) return null;
@@ -37,7 +37,7 @@ class BranchLocalDataProvider {
     final batch = db.batch();
     for (final branch in branches) {
       batch.insert(
-        DatabaseConstants.branchesTable,
+        ResourceDatabaseConstants.branchesTable,
         branch.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -49,7 +49,7 @@ class BranchLocalDataProvider {
   Future<void> saveBranch(BranchEntity branch) async {
     final db = await appDatabase.database;
     await db.insert(
-      DatabaseConstants.branchesTable,
+      ResourceDatabaseConstants.branchesTable,
       branch.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -59,8 +59,8 @@ class BranchLocalDataProvider {
   Future<void> deleteBranch(String branchId) async {
     final db = await appDatabase.database;
     await db.delete(
-      DatabaseConstants.branchesTable,
-      where: '${DatabaseConstants.branchId} = ?',
+      ResourceDatabaseConstants.branchesTable,
+      where: '${ResourceDatabaseConstants.branchId} = ?',
       whereArgs: [branchId],
     );
   }
@@ -68,6 +68,6 @@ class BranchLocalDataProvider {
   /// Clears all Branch entities from the local database.
   Future<void> clearBranches() async {
     final db = await appDatabase.database;
-    await db.delete(DatabaseConstants.branchesTable);
+    await db.delete(ResourceDatabaseConstants.branchesTable);
   }
 }
