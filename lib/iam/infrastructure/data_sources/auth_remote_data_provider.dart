@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:restock/iam/infrastructure/models/sign_in_request.dart';
 import 'package:restock/iam/infrastructure/models/sign_in_response.dart';
-import 'package:restock/shared/infrastructure/constants/api_constants.dart';
+import 'package:restock/iam/infrastructure/repositories/constants/iam_api_constants.dart';
+import 'package:restock/shared/infrastructure/repositories/constants/api_constants.dart';
 
 /// Remote data provider for authentication operations.
 class AuthRemoteDataProvider {
@@ -12,7 +13,7 @@ class AuthRemoteDataProvider {
   /// Signs in a user with the given [request].
   Future<SignInResponse> signIn(SignInRequest request) async {
     try {
-      final Uri uri = Uri.parse('${ApiConstants.baseUrl}auth/sign-in');
+      final Uri uri = Uri.parse('${ApiConstants.baseUrl}${IamApiConstants.signIn}');
 
       final response = await http.post(
         uri,

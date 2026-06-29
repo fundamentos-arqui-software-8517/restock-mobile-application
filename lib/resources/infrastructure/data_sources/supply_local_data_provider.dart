@@ -1,5 +1,5 @@
 import 'package:restock/resources/infrastructure/models/supply_entity.dart';
-import 'package:restock/shared/infrastructure/constants/database_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resource_database_constants.dart';
 import 'package:restock/shared/infrastructure/database/local_database.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -11,8 +11,8 @@ class SupplyLocalDataProvider {
   Future<List<SupplyEntity>> getSupplies() async {
     final db = await appDatabase.database;
     final result = await db.query(
-      DatabaseConstants.suppliesTable,
-      where: '${DatabaseConstants.supplyIsCatalog} = ?',
+      ResourceDatabaseConstants.suppliesTable,
+      where: '${ResourceDatabaseConstants.supplyIsCatalog} = ?',
       whereArgs: [1],
     );
     return result.map(SupplyEntity.fromMap).toList();
@@ -21,8 +21,8 @@ class SupplyLocalDataProvider {
   Future<SupplyEntity?> getSupplyById(String supplyId) async {
     final db = await appDatabase.database;
     final result = await db.query(
-      DatabaseConstants.suppliesTable,
-      where: '${DatabaseConstants.supplyId} = ?',
+      ResourceDatabaseConstants.suppliesTable,
+      where: '${ResourceDatabaseConstants.supplyId} = ?',
       whereArgs: [supplyId],
     );
 
@@ -36,7 +36,7 @@ class SupplyLocalDataProvider {
 
     for (final supply in supplies) {
       batch.insert(
-        DatabaseConstants.suppliesTable,
+        ResourceDatabaseConstants.suppliesTable,
         supply.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -48,7 +48,7 @@ class SupplyLocalDataProvider {
   Future<void> saveSupply(SupplyEntity supply) async {
     final db = await appDatabase.database;
     await db.insert(
-      DatabaseConstants.suppliesTable,
+      ResourceDatabaseConstants.suppliesTable,
       supply.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -56,6 +56,6 @@ class SupplyLocalDataProvider {
 
   Future<void> clearSupplies() async {
     final db = await appDatabase.database;
-    await db.delete(DatabaseConstants.suppliesTable);
+    await db.delete(ResourceDatabaseConstants.suppliesTable);
   }
 }

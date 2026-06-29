@@ -58,17 +58,24 @@ class DeviceResponseModel {
 
     // Back returns measurement fields flat (not nested)
     DeviceMeasurement? parseMeasurement() {
-      final netWeight = (json['netWeight'] as num?)?.toDouble();
+      final measurement =
+          _asMap(json['measurement']) ??
+          _asMap(json['weightMeasurement']) ??
+          json;
+      final netWeight = _toDouble(measurement['netWeight']);
       if (netWeight == null) return null;
       return DeviceMeasurement(
         netWeight: netWeight,
-        tareWeight: (json['tareWeight'] as num?)?.toDouble() ?? 0.0,
-        grossWeight: (json['grossWeight'] as num?)?.toDouble(),
+        tareWeight: _toDouble(measurement['tareWeight']) ?? 0.0,
+        grossWeight: _toDouble(measurement['grossWeight']),
         // response uses 'weightUnit'; request uses 'weightUnitName'
-        weightUnitName: json['weightUnit']?.toString() ?? '',
+        weightUnitName:
+            measurement['weightUnitName']?.toString() ??
+            measurement['weightUnit']?.toString() ??
+            '',
         weightUnitAbbreviation:
-            json['weightUnitAbbreviation']?.toString() ?? '',
-        calibrationDate: json['calibrationDate']?.toString(),
+            measurement['weightUnitAbbreviation']?.toString() ?? '',
+        calibrationDate: measurement['calibrationDate']?.toString(),
       );
     }
 
@@ -84,6 +91,17 @@ class DeviceResponseModel {
       supplyThresholdId: json['supplyThresholdId']?.toString(),
       measurement: parseMeasurement(),
     );
+  }
+
+  static Map<String, dynamic>? _asMap(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  static double? _toDouble(Object? value) {
+    if (value is num) return value.toDouble();
+    return null;
   }
 
   Device toDomain() {

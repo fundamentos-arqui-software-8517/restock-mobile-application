@@ -1,6 +1,5 @@
 import 'package:restock/resources/domain/entities/custom_supply.dart';
-import 'package:restock/resources/domain/entities/register_custom_supply_command.dart';
-import 'package:restock/resources/domain/entities/update_custom_supply_command.dart';
+import 'package:restock/resources/domain/commands/register_custom_supply_command.dart';
 import 'package:restock/resources/domain/repositories/custom_supply_repository.dart';
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_local_data_provider.dart';
 import 'package:restock/resources/infrastructure/data_sources/custom_supply_remote_data_provider.dart';
@@ -10,6 +9,8 @@ import 'package:restock/resources/infrastructure/models/custom_supply_entity.dar
 import 'package:restock/resources/infrastructure/models/register_custom_supply_request.dart';
 import 'package:restock/resources/infrastructure/models/supply_entity.dart';
 import 'package:restock/resources/infrastructure/models/update_custom_supply_request.dart';
+
+import '../../domain/commands/update_custom_supply_command.dart';
 
 /// Implementation of the CustomSupplyRepository that interacts with the CustomSupplyRemoteDataProvider
 class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
@@ -33,12 +34,15 @@ class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
 
   /// Fetches a list of custom supplies for the current branch from the remote data provider
   @override
-  Future<List<CustomSupply>> getCustomSuppliesByBranchId() async {
+  Future<List<CustomSupply>> getCustomSuppliesByBranchId(
+    String accountId,
+  ) async {
     try {
       final customSuppliesResponse = await customSupplyRemoteDataProvider
-          .getCustomSuppliesByBranchId();
+          .getCustomSuppliesByBranchId(accountId);
       final customSupplies = customSuppliesResponse
           .map((response) => response.toDomain())
+          .where((customSupply) => customSupply.accountId == accountId)
           .toList();
 
       await _tryCacheSupplyCatalog();
@@ -47,11 +51,34 @@ class CustomSupplyRepositoryImpl implements CustomSupplyRepository {
       return customSupplies;
     } catch (e) {
       final localCustomSupplies = await customSupplyLocalDataProvider
-          .getCustomSupplies();
+          .getCustomSuppliesByAccountId(accountId);
       if (localCustomSupplies.isEmpty) {
         throw Exception('Failed to fetch custom supplies: $e');
       }
       return localCustomSupplies.map((c) => c.toDomain()).toList();
+    }
+  }
+
+  @override
+  Future<CustomSupply> getCustomSupplyById(String customSupplyId) async {
+    try {
+      final response = await customSupplyRemoteDataProvider.getCustomSupplyById(
+        customSupplyId,
+      );
+      final customSupply = response.toDomain();
+
+      await _tryCacheCustomSupplies([customSupply]);
+
+      return customSupply;
+    } catch (e) {
+      final localCustomSupply = await customSupplyLocalDataProvider
+          .getCustomSupplyById(customSupplyId);
+
+      if (localCustomSupply == null) {
+        throw Exception('Failed to fetch custom supply: $e');
+      }
+
+      return localCustomSupply.toDomain();
     }
   }
 

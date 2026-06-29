@@ -1,7 +1,7 @@
 import 'package:path/path.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resource_database_constants.dart';
+import 'package:restock/shared/infrastructure/repositories/constants/database_constants.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:restock/shared/infrastructure/constants/database_constants.dart';
-
 /// A singleton class that manages the local database connection using sqflite.
 /// This class ensures that only one instance of the database is created and provides a method to access the database instance.
 class AppDatabase {
@@ -44,17 +44,17 @@ class AppDatabase {
   /// Creates the necessary tables in the database when it is first created.
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE ${DatabaseConstants.branchesTable} (
-        ${DatabaseConstants.branchId} TEXT PRIMARY KEY,
-        ${DatabaseConstants.branchAccountId} TEXT NOT NULL,
-        ${DatabaseConstants.branchName} TEXT NOT NULL,
-        ${DatabaseConstants.branchAddress} TEXT NOT NULL,
-        ${DatabaseConstants.branchCity} TEXT NOT NULL,
-        ${DatabaseConstants.branchStateOrRegion} TEXT NOT NULL,
-        ${DatabaseConstants.branchCountry} TEXT NOT NULL,
-        ${DatabaseConstants.branchImageUrl} TEXT NOT NULL,
-        ${DatabaseConstants.branchStatus} TEXT NOT NULL,
-        ${DatabaseConstants.branchDescription} TEXT NOT NULL
+      CREATE TABLE ${ResourceDatabaseConstants.branchesTable} (
+        ${ResourceDatabaseConstants.branchId} TEXT PRIMARY KEY,
+        ${ResourceDatabaseConstants.branchAccountId} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.branchName} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.branchAddress} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.branchCity} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.branchStateOrRegion} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.branchCountry} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.branchImageUrl} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.branchStatus} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.branchDescription} TEXT NOT NULL
       )
     ''');
 
@@ -70,8 +70,8 @@ class AppDatabase {
 
     if (oldVersion >= 2 && oldVersion < 3) {
       await db.execute('''
-        ALTER TABLE ${DatabaseConstants.suppliesTable}
-        ADD COLUMN ${DatabaseConstants.supplyIsCatalog} INTEGER NOT NULL DEFAULT 0
+        ALTER TABLE ${ResourceDatabaseConstants.suppliesTable}
+        ADD COLUMN ${ResourceDatabaseConstants.supplyIsCatalog} INTEGER NOT NULL DEFAULT 0
       ''');
     }
   }
@@ -83,13 +83,13 @@ class AppDatabase {
     final existsClause = ifNotExists ? 'IF NOT EXISTS ' : '';
 
     await db.execute('''
-      CREATE TABLE $existsClause${DatabaseConstants.suppliesTable} (
-        ${DatabaseConstants.supplyId} TEXT PRIMARY KEY,
-        ${DatabaseConstants.supplyName} TEXT NOT NULL,
-        ${DatabaseConstants.supplyDescription} TEXT NOT NULL,
-        ${DatabaseConstants.supplyCategory} TEXT NOT NULL,
-        ${DatabaseConstants.supplyIsPerishable} INTEGER NOT NULL,
-        ${DatabaseConstants.supplyIsCatalog} INTEGER NOT NULL DEFAULT 0
+      CREATE TABLE $existsClause${ResourceDatabaseConstants.suppliesTable} (
+        ${ResourceDatabaseConstants.supplyId} TEXT PRIMARY KEY,
+        ${ResourceDatabaseConstants.supplyName} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.supplyDescription} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.supplyCategory} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.supplyIsPerishable} INTEGER NOT NULL,
+        ${ResourceDatabaseConstants.supplyIsCatalog} INTEGER NOT NULL DEFAULT 0
       )
     ''');
   }
@@ -101,22 +101,22 @@ class AppDatabase {
     final existsClause = ifNotExists ? 'IF NOT EXISTS ' : '';
 
     await db.execute('''
-      CREATE TABLE $existsClause${DatabaseConstants.customSuppliesTable} (
-        ${DatabaseConstants.customSupplyId} TEXT PRIMARY KEY,
-        ${DatabaseConstants.customSupplySupplyId} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyName} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyAccountId} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyDescription} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyUnitPriceAmount} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyUnitPriceCurrencyCode} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyMinimumStock} REAL NOT NULL,
-        ${DatabaseConstants.customSupplyMaximumStock} REAL NOT NULL,
-        ${DatabaseConstants.customSupplyUnitMeasurement} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyUnitMeasurementAbbreviation} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyPictureUrl} TEXT NOT NULL,
-        ${DatabaseConstants.customSupplyPicturePublicId} TEXT NOT NULL,
-        FOREIGN KEY (${DatabaseConstants.customSupplySupplyId})
-          REFERENCES ${DatabaseConstants.suppliesTable} (${DatabaseConstants.supplyId})
+      CREATE TABLE $existsClause${ResourceDatabaseConstants.customSuppliesTable} (
+        ${ResourceDatabaseConstants.customSupplyId} TEXT PRIMARY KEY,
+        ${ResourceDatabaseConstants.customSupplySupplyId} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyName} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyAccountId} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyDescription} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyUnitPriceAmount} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyUnitPriceCurrencyCode} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyMinimumStock} REAL NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyMaximumStock} REAL NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyUnitMeasurement} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyUnitMeasurementAbbreviation} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyPictureUrl} TEXT NOT NULL,
+        ${ResourceDatabaseConstants.customSupplyPicturePublicId} TEXT NOT NULL,
+        FOREIGN KEY (${ResourceDatabaseConstants.customSupplySupplyId})
+          REFERENCES ${ResourceDatabaseConstants.suppliesTable} (${ResourceDatabaseConstants.supplyId})
           ON UPDATE CASCADE
           ON DELETE RESTRICT
       )

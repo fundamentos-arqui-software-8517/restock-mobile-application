@@ -11,7 +11,9 @@ abstract class DeviceRepository {
   Future<List<Device>> getDevicesByAccountId(String accountId);
   Future<Device> getDeviceById(String deviceId);
   Future<Device> registerDevice(RegisterDeviceCommand command);
-  Future<Device> updateSpecifications(UpdateDeviceSpecificationsCommand command);
+  Future<Device> updateSpecifications(
+    UpdateDeviceSpecificationsCommand command,
+  );
   Future<Device> assignBranch(AssignBranchCommand command);
   Future<Device> assignBatch(AssignBatchCommand command);
   Future<Device> assignThreshold(AssignThresholdCommand command);

@@ -18,7 +18,7 @@ class AlertThresholdsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locked = !device.isOnboardingComplete;
+    final locked = !device.hasBatch;
 
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -31,7 +31,7 @@ class AlertThresholdsCard extends StatelessWidget {
         border: Border.all(color: DevicesTheme.borderGray),
       ),
       child: locked
-          ? _LockedState()
+          ? const _LockedState()
           : threshold == null
           ? _EmptyState(onTap: () => _openSheet(context))
           : _FilledState(
@@ -42,19 +42,21 @@ class AlertThresholdsCard extends StatelessWidget {
   }
 
   void _openSheet(BuildContext context, {DeviceThreshold? existing}) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => BlocProvider.value(
-        value: context.read<DeviceDetailBloc>(),
-        child: EditThresholdsBottomSheet(existing: existing),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => BlocProvider.value(
+          value: context.read<DeviceDetailBloc>(),
+          child: EditThresholdsBottomSheet(existing: existing),
+        ),
       ),
     );
   }
 }
 
 class _LockedState extends StatelessWidget {
+  const _LockedState();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -99,24 +101,26 @@ class _EmptyState extends StatelessWidget {
           const Row(
             children: [
               Icon(
-                Icons.notifications_none_outlined,
+                Icons.notifications_active_outlined,
                 size: 18,
-                color: DevicesTheme.textPrimary,
+                color: DevicesTheme.greenPrimary,
               ),
               SizedBox(width: 8),
-              Text(
-                'Alert Thresholds',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: DevicesTheme.textPrimary,
+              Expanded(
+                child: Text(
+                  'Alert Thresholds',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: DevicesTheme.textPrimary,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           const Text(
-            'No thresholds configured yet.',
+            'Configure stock, temperature, and humidity limits to complete setup.',
             style: TextStyle(fontSize: 13, color: DevicesTheme.textSecondary),
           ),
           const SizedBox(height: 12),

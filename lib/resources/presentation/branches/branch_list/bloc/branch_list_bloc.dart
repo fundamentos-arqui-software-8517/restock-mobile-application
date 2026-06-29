@@ -8,9 +8,8 @@ import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 /// Bloc for managing the state of the branch list.
 class BranchListBloc extends Bloc<BranchListEvent, BranchListState> {
   /// Creates a new instance of [BranchListBloc].
-  BranchListBloc({
-    required this.branchFacadeService,
-  }) : super(const BranchListState()) {
+  BranchListBloc({required this.branchFacadeService})
+    : super(const BranchListState()) {
     on<GetBranches>(_onLoadBranches);
     on<BranchStatusUpdated>(_onBranchStatusUpdated);
   }
@@ -26,15 +25,10 @@ class BranchListBloc extends Bloc<BranchListEvent, BranchListState> {
     emit(state.copyWith(status: Status.loading));
 
     try {
-      final branches =
-          await branchFacadeService.getBranchesByAccountId();
+      final branches = await branchFacadeService.getBranchesByAccountId();
+      await branchFacadeService.resolveActiveBranchId(branches);
 
-      emit(
-        state.copyWith(
-          status: Status.success,
-          branches: branches,
-        ),
-      );
+      emit(state.copyWith(status: Status.success, branches: branches));
     } catch (e) {
       emit(
         state.copyWith(
@@ -62,11 +56,6 @@ class BranchListBloc extends Bloc<BranchListEvent, BranchListState> {
       );
     }).toList();
 
-    emit(
-      state.copyWith(
-        status: Status.success,
-        branches: updatedBranches,
-      ),
-    );
+    emit(state.copyWith(status: Status.success, branches: updatedBranches));
   }
 }

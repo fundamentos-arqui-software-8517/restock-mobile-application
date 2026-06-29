@@ -8,6 +8,7 @@ class RestockTextField extends StatelessWidget {
     this.keyboardType,
     this.maxLines = 1,
     this.enabled = true,
+    this.errorText,
     super.key,
   });
 
@@ -17,6 +18,7 @@ class RestockTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final int maxLines;
   final bool enabled;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +29,14 @@ class RestockTextField extends StatelessWidget {
       maxLines: maxLines,
       enabled: enabled,
       style: TextStyle(
-        color: enabled
-            ? const Color(0xFF0D1B2A)
-            : const Color(0xFF9AA5B4),
+        color: enabled ? const Color(0xFF0D1B2A) : const Color(0xFF9AA5B4),
         fontSize: 13,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.4,
       ),
       decoration: InputDecoration(
         hintText: hint,
+        errorText: errorText,
         hintStyle: const TextStyle(
           color: Color(0xFF9AA5B4),
           fontSize: 12,
@@ -43,9 +44,7 @@ class RestockTextField extends StatelessWidget {
           letterSpacing: 1.0,
         ),
         filled: true,
-        fillColor: enabled
-            ? Colors.white
-            : const Color(0xFFF0F0F0),
+        fillColor: enabled ? Colors.white : const Color(0xFFF0F0F0),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
@@ -61,6 +60,14 @@ class RestockTextField extends StatelessWidget {
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: Color(0xFFEEEEEE), width: 1.2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFFE24B4A), width: 1.2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFFE24B4A), width: 1.5),
         ),
       ),
     );

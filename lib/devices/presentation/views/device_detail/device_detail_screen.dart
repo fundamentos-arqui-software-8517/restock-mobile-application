@@ -10,6 +10,7 @@ import 'package:restock/devices/presentation/views/device_detail/widgets/assigne
 import 'package:restock/devices/presentation/views/device_detail/widgets/assign_batch_bottom_sheet.dart';
 import 'package:restock/devices/presentation/views/device_detail/widgets/danger_zone_card.dart';
 import 'package:restock/devices/presentation/views/device_detail/widgets/unlink_confirm_bottom_sheet.dart';
+import 'package:restock/devices/presentation/views/device_detail/widgets/weight_calibration_card.dart';
 import 'package:restock/devices/application/device_facade_service.dart';
 import 'package:restock/injections.dart';
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
@@ -93,11 +94,9 @@ class DeviceDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 28),
                       GestureDetector(
-                        onTap: () => context
-                            .read<DeviceDetailBloc>()
-                            .add(
-                              DeviceDetailFetched(state.device!.deviceId),
-                            ),
+                        onTap: () => context.read<DeviceDetailBloc>().add(
+                          DeviceDetailFetched(state.device!.deviceId),
+                        ),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 28,
@@ -193,6 +192,11 @@ class DeviceDetailScreen extends StatelessWidget {
 
         AlertThresholdsCard(device: device, threshold: state.threshold),
 
+        WeightCalibrationCard(
+          device: device,
+          onCalibrate: () => _showWeightCalibration(context, state),
+        ),
+
         DangerZoneCard(
           device: device,
           onUnlink: () => _showUnlinkConfirm(context, device.deviceId),
@@ -212,6 +216,20 @@ class DeviceDetailScreen extends StatelessWidget {
         value: context.read<DeviceDetailBloc>(),
         child: AssignBatchBottomSheet(
           deviceFacadeService: serviceLocator<DeviceFacadeService>(),
+        ),
+      ),
+    );
+  }
+
+  void _showWeightCalibration(BuildContext context, DeviceDetailState state) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocProvider.value(
+        value: context.read<DeviceDetailBloc>(),
+        child: WeightCalibrationBottomSheet(
+          initialMeasurement: state.device?.measurement,
         ),
       ),
     );
@@ -238,8 +256,9 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (color, label) = switch (status) {
-      DeviceStatus.registered => (Colors.orange, 'REGISTERED'),
-      DeviceStatus.configured => (DevicesTheme.greenAccent, 'CONFIGURED'),
+      DeviceStatus.registered => (DevicesTheme.textSecondary, 'REGISTERED'),
+      DeviceStatus.configured => (Colors.orange, 'CONFIGURED'),
+      DeviceStatus.calibrated => (DevicesTheme.greenAccent, 'CALIBRATED'),
       DeviceStatus.active => (DevicesTheme.greenAccent, 'ACTIVE'),
       DeviceStatus.inactive => (DevicesTheme.textSecondary, 'INACTIVE'),
     };

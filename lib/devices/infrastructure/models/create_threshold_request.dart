@@ -3,6 +3,7 @@ import 'package:restock/devices/domain/entities/create_threshold_command.dart';
 class CreateThresholdRequest {
   const CreateThresholdRequest({
     required this.accountId,
+    required this.deviceId,
     required this.customSupplyId,
     required this.minStock,
     required this.maxStock,
@@ -16,6 +17,7 @@ class CreateThresholdRequest {
   factory CreateThresholdRequest.fromCommand(CreateThresholdCommand cmd) {
     return CreateThresholdRequest(
       accountId: cmd.accountId,
+      deviceId: cmd.deviceId,
       customSupplyId: cmd.customSupplyId,
       minStock: cmd.minStock,
       maxStock: cmd.maxStock,
@@ -28,6 +30,7 @@ class CreateThresholdRequest {
   }
 
   final String accountId;
+  final String deviceId;
   final String customSupplyId;
   final double minStock;
   final double maxStock;
@@ -40,14 +43,15 @@ class CreateThresholdRequest {
   Map<String, dynamic> toJson() {
     return {
       'accountId': accountId,
+      'deviceId': deviceId,
       'customSupplyId': customSupplyId,
       'minStock': minStock,
       'maxStock': maxStock,
       'anomalyThreshold': anomalyThreshold,
-      if (minTemperature != null) 'minTemperature': minTemperature,
-      if (maxTemperature != null) 'maxTemperature': maxTemperature,
-      if (minHumidity != null) 'minHumidity': minHumidity,
-      if (maxHumidity != null) 'maxHumidity': maxHumidity,
+      if (minTemperature != null) 'minTemperatureCelsius': minTemperature,
+      if (maxTemperature != null) 'maxTemperatureCelsius': maxTemperature,
+      if (minHumidity != null) 'minHumidityPercentage': minHumidity,
+      if (maxHumidity != null) 'maxHumidityPercentage': maxHumidity,
     };
   }
 }

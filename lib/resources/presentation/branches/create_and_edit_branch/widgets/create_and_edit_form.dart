@@ -8,11 +8,11 @@ import 'package:restock/resources/presentation/branches/branch_status/widgets/br
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_bloc.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_event.dart';
 import 'package:restock/resources/presentation/branches/create_and_edit_branch/blocs/create_and_edit_branch_state.dart';
+import 'package:restock/resources/presentation/branches/create_and_edit_branch/widgets/branch_labeled_text_field.dart';
 
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 import 'package:restock/shared/presentation/widgets/image_picker_field.dart';
 import 'package:restock/shared/presentation/widgets/restok_button.dart';
-import 'package:restock/shared/presentation/widgets/text_field.dart';
 
 /// A widget that provides a form for creating or editing a branch, including fields for name, address, state/region, city, country, description, and an image picker. It listens to the [CreateAndEditBranchBloc] for state changes and dispatches events when the user interacts with the form.
 class CreateAndEditBranchPage extends StatelessWidget {
@@ -209,7 +209,13 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                           buildWhen: (prev, curr) =>
                               prev.isEditing != curr.isEditing ||
                               prev.branchStatus != curr.branchStatus ||
-                              prev.status != curr.status,
+                              prev.status != curr.status ||
+                              prev.submitted != curr.submitted ||
+                              prev.name != curr.name ||
+                              prev.address != curr.address ||
+                              prev.stateOrRegion != curr.stateOrRegion ||
+                              prev.city != curr.city ||
+                              prev.country != curr.country,
                           builder: (context, state) {
                             final isActive = state.branchStatus == 'active';
                             final isEditing = state.isEditing;
@@ -231,9 +237,10 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 ),
                                 const SizedBox(height: 16),
 
-                                RestockTextField(
+                                BranchLabeledTextField(
                                   controller: _nameController,
-                                  hint: 'BRANCH NAME',
+                                  label: 'BRANCH NAME',
+                                  errorText: state.nameError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -243,9 +250,10 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 ),
                                 const SizedBox(height: 10),
 
-                                RestockTextField(
+                                BranchLabeledTextField(
                                   controller: _addressController,
-                                  hint: 'STREET ADDRESS',
+                                  label: 'STREET ADDRESS',
+                                  errorText: state.addressError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -255,9 +263,10 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 ),
                                 const SizedBox(height: 10),
 
-                                RestockTextField(
+                                BranchLabeledTextField(
                                   controller: _stateOrRegionController,
-                                  hint: 'STATE / REGION',
+                                  label: 'STATE / REGION',
+                                  errorText: state.stateOrRegionError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -269,9 +278,10 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 ),
                                 const SizedBox(height: 10),
 
-                                RestockTextField(
+                                BranchLabeledTextField(
                                   controller: _cityController,
-                                  hint: 'CITY',
+                                  label: 'CITY',
+                                  errorText: state.cityError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -281,9 +291,10 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 ),
                                 const SizedBox(height: 10),
 
-                                RestockTextField(
+                                BranchLabeledTextField(
                                   controller: _countryController,
-                                  hint: 'COUNTRY',
+                                  label: 'COUNTRY',
+                                  errorText: state.countryError,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading
                                       ? (v) => _dispatch(
@@ -293,9 +304,9 @@ class _CreateAndEditBranchViewState extends State<_CreateAndEditBranchView> {
                                 ),
                                 const SizedBox(height: 10),
 
-                                RestockTextField(
+                                BranchLabeledTextField(
                                   controller: _descriptionController,
-                                  hint: 'DESCRIPTION',
+                                  label: 'DESCRIPTION (OPTIONAL)',
                                   maxLines: 3,
                                   enabled: isActive && !isLoading,
                                   onChanged: isActive && !isLoading

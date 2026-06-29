@@ -1,5 +1,5 @@
 import 'package:restock/resources/domain/entities/supply.dart';
-import 'package:restock/shared/infrastructure/constants/database_constants.dart';
+import 'package:restock/resources/infrastructure/repositories/constants/resource_database_constants.dart';
 
 /// Represents a supply entity in the application, which corresponds to a supply record in the database.
 class SupplyEntity {
@@ -22,24 +22,24 @@ class SupplyEntity {
   /// Creates a SupplyEntity instance from a map of key-value pairs, typically retrieved from the database.
   factory SupplyEntity.fromMap(Map<String, dynamic> map) {
     return SupplyEntity(
-      supplyId: map[DatabaseConstants.supplyId] as String,
-      name: map[DatabaseConstants.supplyName] as String,
-      description: map[DatabaseConstants.supplyDescription] as String,
-      category: map[DatabaseConstants.supplyCategory] as String,
-      isPerishable: map[DatabaseConstants.supplyIsPerishable] == 1,
-      isCatalog: map[DatabaseConstants.supplyIsCatalog] == 1,
+      supplyId: map[ResourceDatabaseConstants.supplyId] as String,
+      name: map[ResourceDatabaseConstants.supplyName] as String,
+      description: map[ResourceDatabaseConstants.supplyDescription] as String,
+      category: map[ResourceDatabaseConstants.supplyCategory] as String,
+      isPerishable: map[ResourceDatabaseConstants.supplyIsPerishable] == 1,
+      isCatalog: map[ResourceDatabaseConstants.supplyIsCatalog] == 1,
     );
   }
 
   /// Converts the SupplyEntity instance into a map of key-value pairs, suitable for inserting or updating records in the database.
   Map<String, dynamic> toMap() {
     return {
-      DatabaseConstants.supplyId: supplyId,
-      DatabaseConstants.supplyName: name,
-      DatabaseConstants.supplyDescription: description,
-      DatabaseConstants.supplyCategory: category,
-      DatabaseConstants.supplyIsPerishable: isPerishable ? 1 : 0,
-      DatabaseConstants.supplyIsCatalog: isCatalog ? 1 : 0,
+      ResourceDatabaseConstants.supplyId: supplyId,
+      ResourceDatabaseConstants.supplyName: name,
+      ResourceDatabaseConstants.supplyDescription: description,
+      ResourceDatabaseConstants.supplyCategory: category,
+      ResourceDatabaseConstants.supplyIsPerishable: isPerishable ? 1 : 0,
+      ResourceDatabaseConstants.supplyIsCatalog: isCatalog ? 1 : 0,
     };
   }
 

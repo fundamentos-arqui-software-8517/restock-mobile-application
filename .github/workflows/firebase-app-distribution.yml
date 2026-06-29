@@ -1,0 +1,160 @@
+name: Restock Firebase App Distribution
+
+on:
+  push:
+    branches:
+      - 'release/**'
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+concurrency:
+  group: firebase-app-distribution-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "Missing GOOGLE_SERVICES_JSON repository secret."
+            exit 1
+          fi
+
+          mkdir -p android/app
+          printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          jq empty android/app/google-services.json
+
+      - name: Create Firebase service account file
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "Missing FIREBASE_SERVICE_ACCOUNT repository secret."
+            exit 1
+          fi
+
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
+          jq empty "$RUNNER_TEMP/firebase-service-account.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-service-account.json" >> "$GITHUB_ENV"
+
+      - name: Decode release keystore
+        env:
+          KEYSTORE_BASE: ${{ secrets.KEYSTORE_BASE }}
+        run: |
+          if [ -z "$KEYSTORE_BASE" ]; then
+            echo "Missing KEYSTORE_BASE repository secret."
+            exit 1
+          fi
+
+          printf '%s' "$KEYSTORE_BASE" | base64 --decode > "$RUNNER_TEMP/restock-release.jks"
+          echo "KEYSTORE_PATH=$RUNNER_TEMP/restock-release.jks" >> "$GITHUB_ENV"
+          echo "KEYSTORE_FILE_PATH=$RUNNER_TEMP/restock-release.jks" >> "$GITHUB_ENV"
+
+      - name: Validate release keystore
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          for secret_name in KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!secret_name}" ]; then
+              echo "Missing $secret_name repository secret."
+              exit 1
+            fi
+          done
+
+          keytool -list \
+            -keystore "$KEYSTORE_PATH" \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -alias "$KEY_ALIAS" > /dev/null
+
+      - name: Set app version
+        run: |
+          RAW_VERSION=""
+
+          if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
+            RAW_VERSION="${{ github.event.release.tag_name }}"
+          elif [[ "${GITHUB_REF_NAME}" == release/* ]]; then
+            RAW_VERSION="${GITHUB_REF_NAME#release/}"
+          else
+            RAW_VERSION="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          fi
+
+          if [[ -z "$RAW_VERSION" ]]; then
+            RAW_VERSION="1.0.0"
+          fi
+
+          VERSION_NAME="${RAW_VERSION#v}"
+          VERSION_CODE="${GITHUB_RUN_NUMBER}"
+
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+          echo "Version: $VERSION_NAME ($VERSION_CODE)"
+
+      - name: Build release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: |
+          if [ -z "$API_BASE_URL" ]; then
+            echo "Missing API_BASE_URL repository secret."
+            exit 1
+          fi
+
+          flutter build apk --release \
+            --build-name "$VERSION_NAME" \
+            --build-number "$VERSION_CODE" \
+            --dart-define=API_BASE_URL="$API_BASE_URL"
+
+      - name: Upload release to Firebase App Distribution
+        env:
+          FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          FIREBASE_TESTER_GROUPS: ${{ secrets.FIREBASE_TESTER_GROUPS }}
+        run: |
+          if [ -z "$FIREBASE_ANDROID_APP_ID" ]; then
+            echo "Missing FIREBASE_ANDROID_APP_ID repository secret."
+            exit 1
+          fi
+
+          if [ -z "$FIREBASE_TESTER_GROUPS" ]; then
+            echo "Missing FIREBASE_TESTER_GROUPS repository secret."
+            exit 1
+          fi
+
+          npm install -g firebase-tools
+          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
+            --app "$FIREBASE_ANDROID_APP_ID" \
+            --groups "$FIREBASE_TESTER_GROUPS" \
+            --release-notes "Restock ${VERSION_NAME} (${VERSION_CODE}) - ${GITHUB_SHA}"

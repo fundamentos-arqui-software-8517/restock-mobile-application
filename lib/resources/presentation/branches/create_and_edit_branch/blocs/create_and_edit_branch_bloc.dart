@@ -82,30 +82,34 @@ class CreateAndEditBranchBloc
     Emitter<CreateAndEditBranchState> emit,
   ) async {
     if (state.status == Status.loading) return;
-    if (!state.isValid) return;
 
-    emit(state.copyWith(status: Status.loading));
+    final submittedState = state.copyWith(submitted: true);
+    emit(submittedState);
+
+    if (!submittedState.isValid) return;
+
+    emit(submittedState.copyWith(status: Status.loading));
     try {
-      if (state.isEditing) {
+      if (submittedState.isEditing) {
         await branchFacadeService.updateBranch(
-          branchId: state.branchId!,
-          name: state.name,
-          address: state.address,
-          stateOrRegion: state.stateOrRegion,
-          city: state.city,
-          country: state.country,
-          description: state.description,
-          image: state.image,
+          branchId: submittedState.branchId!,
+          name: submittedState.name.trim(),
+          address: submittedState.address.trim(),
+          stateOrRegion: submittedState.stateOrRegion.trim(),
+          city: submittedState.city.trim(),
+          country: submittedState.country.trim(),
+          description: submittedState.description.trim(),
+          image: submittedState.image,
         );
       } else {
         await branchFacadeService.registerBranch(
-          name: state.name,
-          address: state.address,
-          stateOrRegion: state.stateOrRegion,
-          city: state.city,
-          country: state.country,
-          description: state.description,
-          image: state.image,
+          name: submittedState.name.trim(),
+          address: submittedState.address.trim(),
+          stateOrRegion: submittedState.stateOrRegion.trim(),
+          city: submittedState.city.trim(),
+          country: submittedState.country.trim(),
+          description: submittedState.description.trim(),
+          image: submittedState.image,
         );
       }
       emit(state.copyWith(status: Status.success));
