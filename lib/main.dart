@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:restock/l10n/app_localizations.dart';
 import 'package:restock/communications/infrastructure/notifications/push_notifications_service.dart';
 import 'package:restock/shared/infrastructure/services/auth_status_notifier.dart';
 import './injections.dart' as di;
@@ -45,6 +47,9 @@ Future<void> _initializePushNotifications() async {
   }
 }
 
+// TODO(i18n): mover a un locale/settings bloc en la pasada completa.
+final localeNotifier = ValueNotifier<Locale>(const Locale('en'));
+
 /// The main application widget.
 class RestockApp extends StatelessWidget {
   const RestockApp({super.key});
@@ -52,13 +57,21 @@ class RestockApp extends StatelessWidget {
   /// Builds the MaterialApp with the specified title, theme, and router configuration.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Restock',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      routerConfig: buildRouter(di.serviceLocator<AuthStatusNotifier>()),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: localeNotifier,
+      builder: (context, locale, _) {
+        return MaterialApp.router(
+          title: 'Restock',
+          debugShowCheckedModeBanner: false,
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          ),
+          routerConfig: buildRouter(di.serviceLocator<AuthStatusNotifier>()),
+        );
+      },
     );
   }
 }

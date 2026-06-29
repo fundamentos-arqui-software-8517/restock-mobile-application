@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_bloc.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_event.dart';
 import 'package:restock/iam/presentation/views/sign_in_form/bloc/sign_in_form_state.dart';
+import 'package:restock/l10n/app_localizations.dart';
+import 'package:restock/main.dart' show localeNotifier;
 import 'package:restock/shared/presentation/utils/enums/bloc_status.dart';
 
 class SignInPage extends StatefulWidget {
@@ -41,14 +43,23 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
+  String _resolveError(BuildContext context, String? code) {
+    final l = AppLocalizations.of(context);
+    return switch (code) {
+      'signInInvalidCredentials' => l.signInInvalidCredentials,
+      _ => l.signInFailed,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return BlocListener<SignInBloc, SignInState>(
       listener: (context, state) {
         if (state.status == Status.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message ?? 'Sign in failed'),
+              content: Text(_resolveError(context, state.message)),
               backgroundColor: Colors.red,
             ),
           );
@@ -70,8 +81,8 @@ class _SignInPageState extends State<SignInPage> {
                         width: double.infinity,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text(
+                          children: [
+                            const Text(
                               'Restock',
                               style: TextStyle(
                                 color: Colors.white,
@@ -79,10 +90,10 @@ class _SignInPageState extends State<SignInPage> {
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Text(
-                              'Smart inventory · Real-time control',
-                              style: TextStyle(
+                              l10n.signInTagline,
+                              style: const TextStyle(
                                 color: Color(0xFFA9AFBA),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
@@ -118,18 +129,18 @@ class _SignInPageState extends State<SignInPage> {
                                 ),
                               ),
                               const SizedBox(height: 36),
-                              const Text(
-                                'Welcome back',
-                                style: TextStyle(
+                              Text(
+                                l10n.signInWelcome,
+                                style: const TextStyle(
                                   color: _textPrimary,
                                   fontSize: 29,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                'Manage your global inventory network',
-                                style: TextStyle(
+                              Text(
+                                l10n.signInSubtitle,
+                                style: const TextStyle(
                                   color: _textSecondary,
                                   fontSize: 16,
                                 ),
@@ -137,14 +148,14 @@ class _SignInPageState extends State<SignInPage> {
                               const SizedBox(height: 32),
                               _InputField(
                                 controller: _emailController,
-                                label: 'EMAIL ADDRESS',
-                                hint: 'name@company.com',
+                                label: l10n.signInEmailLabel,
+                                hint: l10n.signInEmailHint,
                                 keyboardType: TextInputType.emailAddress,
                               ),
                               const SizedBox(height: 18),
                               _InputField(
                                 controller: _passwordController,
-                                label: 'PASSWORD',
+                                label: l10n.signInPasswordLabel,
                                 hint: '••••••••',
                                 obscureText: _obscurePassword,
                                 suffix: IconButton(
@@ -190,9 +201,9 @@ class _SignInPageState extends State<SignInPage> {
                                                 strokeWidth: 2.4,
                                               ),
                                             )
-                                          : const Text(
-                                              'Login',
-                                              style: TextStyle(
+                                          : Text(
+                                              l10n.signInSubmit,
+                                              style: const TextStyle(
                                                 fontSize: 19,
                                                 fontWeight: FontWeight.w800,
                                               ),
@@ -205,12 +216,33 @@ class _SignInPageState extends State<SignInPage> {
                               Center(
                                 child: TextButton(
                                   onPressed: () {},
-                                  child: const Text(
-                                    'Forgot your password?',
-                                    style: TextStyle(
+                                  child: Text(
+                                    l10n.signInForgotPassword,
+                                    style: const TextStyle(
                                       color: _green,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // POC: toggle temporal, se quita después.
+                              Center(
+                                child: TextButton(
+                                  onPressed: () {
+                                    localeNotifier.value =
+                                        localeNotifier.value.languageCode ==
+                                                'en'
+                                            ? const Locale('es')
+                                            : const Locale('en');
+                                  },
+                                  child: Text(
+                                    localeNotifier.value.languageCode == 'en'
+                                        ? 'ES'
+                                        : 'EN',
+                                    style: const TextStyle(
+                                      color: _textSecondary,
+                                      fontSize: 13,
                                     ),
                                   ),
                                 ),

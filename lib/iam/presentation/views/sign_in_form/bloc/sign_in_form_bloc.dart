@@ -26,7 +26,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     } catch (e) {
       emit(state.copyWith(
         status: Status.failure,
-        message: 'Invalid email or password',
+        message: 'signInInvalidCredentials',
       ));
     }
   }
