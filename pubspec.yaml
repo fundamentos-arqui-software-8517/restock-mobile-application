@@ -9,6 +9,8 @@ environment:
   sdk: ^3.11.5
 
 dependencies:
+  flutter_localizations:
+    sdk: flutter
   flutter_bloc: ^9.1.1
   cached_network_image: ^3.4.1
   flutter_cache_manager: ^3.4.1
@@ -42,6 +44,7 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  generate: true
 
   assets:
     - assets/lottie/restock_splash.json

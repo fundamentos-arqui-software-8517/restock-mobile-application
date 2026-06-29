@@ -1,0 +1,33 @@
+{
+  "@@locale": "en",
+
+  "signInTagline": "Smart inventory · Real-time control",
+  "@signInTagline": { "description": "Tagline shown below the app name on the sign-in header" },
+
+  "signInWelcome": "Welcome back",
+  "@signInWelcome": { "description": "Main heading of the sign-in form" },
+
+  "signInSubtitle": "Manage your global inventory network",
+  "@signInSubtitle": { "description": "Subtitle below the welcome heading" },
+
+  "signInEmailLabel": "EMAIL ADDRESS",
+  "@signInEmailLabel": { "description": "Label for the email input field" },
+
+  "signInEmailHint": "name@company.com",
+  "@signInEmailHint": { "description": "Placeholder text for the email input" },
+
+  "signInPasswordLabel": "PASSWORD",
+  "@signInPasswordLabel": { "description": "Label for the password input field" },
+
+  "signInSubmit": "Login",
+  "@signInSubmit": { "description": "Text on the sign-in submit button" },
+
+  "signInForgotPassword": "Forgot your password?",
+  "@signInForgotPassword": { "description": "Forgot password link text" },
+
+  "signInFailed": "Sign in failed",
+  "@signInFailed": { "description": "Generic error shown when sign-in fails without a specific code" },
+
+  "signInInvalidCredentials": "Invalid email or password",
+  "@signInInvalidCredentials": { "description": "Error shown when credentials are rejected by the server" }
+}

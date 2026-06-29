@@ -1,0 +1,14 @@
+{
+  "@@locale": "es",
+
+  "signInTagline": "Inventario inteligente · Control en tiempo real",
+  "signInWelcome": "Bienvenido de vuelta",
+  "signInSubtitle": "Gestiona tu red de inventario global",
+  "signInEmailLabel": "CORREO ELECTRÓNICO",
+  "signInEmailHint": "nombre@empresa.com",
+  "signInPasswordLabel": "CONTRASEÑA",
+  "signInSubmit": "Iniciar sesión",
+  "signInForgotPassword": "¿Olvidaste tu contraseña?",
+  "signInFailed": "Error al iniciar sesión",
+  "signInInvalidCredentials": "Correo o contraseña inválidos"
+}
